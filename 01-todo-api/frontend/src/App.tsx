@@ -66,41 +66,48 @@ fetch(`http://localhost:8080/todos/${id}`, { method: 'PUT' })
 }
 
   return (
+    <div className="container py-5" style={{ maxWidth: '600px' }}>
+      <h1 className="mb-4 text-center">Todo List</h1>
 
-    <>
-      <div>
-        <h1>Todo List</h1>
-        <div>
-          {/* Il <form> avvolge input+bottone: onSubmit scatta quando premi
-              "Aggiungi" O premi Invio dentro l'input (comportamento nativo HTML) */}
-          <form onSubmit={handleSubmit}>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Nuova todo..."
-            />
-            <button type="submit">Aggiungi</button>
-          </form>
+      {/* Il <form> avvolge input+bottone: onSubmit scatta quando premi
+          "Aggiungi" O premi Invio dentro l'input (comportamento nativo HTML) */}
+      <form onSubmit={handleSubmit} className="mb-4">
+        <div className="input-group">
+          <input
+            type="text"
+            className="form-control"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Nuova todo..."
+          />
+          <button type="submit" className="btn btn-primary">Aggiungi</button>
         </div>
-        <div>
-          <ul>
-            {/* todos.map trasforma ogni elemento dell'array in un elemento JSX.
-                key={todo.id} è obbligatorio con le liste in React: aiuta a capire
-                quale elemento è cambiato/aggiunto/rimosso senza ridisegnare tutto. */}
-            {todos.map(todo => (
-              <li key={todo.id}>
-                <span>{todo.title}</span>
-                <span>{todo.done ? ' (Done)' : ' (Not Done)'}</span>
-                <button onClick={() => handleToggleDone(todo.id)}>Spunta</button>
-                <button onClick={() => handleDelete(todo.id)}>Elimina</button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    </>
+      </form>
 
+      <ul className="list-group">
+        {/* todos.map trasforma ogni elemento dell'array in un elemento JSX.
+            key={todo.id} è obbligatorio con le liste in React: aiuta a capire
+            quale elemento è cambiato/aggiunto/rimosso senza ridisegnare tutto. */}
+        {todos.map(todo => (
+          <li key={todo.id} className="list-group-item d-flex justify-content-between align-items-center">
+            <span className={todo.done ? 'text-decoration-line-through text-muted' : ''}>
+              {todo.title}
+            </span>
+            <div className="d-flex gap-2 align-items-center">
+              <span className={`badge ${todo.done ? 'bg-success' : 'bg-secondary'}`}>
+                {todo.done ? 'Fatta' : 'Da fare'}
+              </span>
+              <button className="btn btn-sm btn-outline-secondary" onClick={() => handleToggleDone(todo.id)}>
+                Spunta
+              </button>
+              <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(todo.id)}>
+                Elimina
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
   )
 }
 
