@@ -34,20 +34,21 @@ func main() {
 	// Il pattern può includere il metodo HTTP ("PUT ...") e parametri
 	// nel path ("{id}"), letti poi con r.PathValue("id") dentro l'handler.
 	mux := http.NewServeMux()
-	// Ogni handler viene "avvolto" da withCORS prima di essere registrato:
-	// http.HandlerFunc(f) converte una funzione con la firma giusta
-	// nel tipo http.Handler che withCORS si aspetta in ingresso.
-	mux.Handle("/health", withCORS(http.HandlerFunc(health)))
-	mux.Handle("/todos", withCORS(http.HandlerFunc(todosHandler)))
-	mux.Handle("PUT /todos/{id}", withCORS(http.HandlerFunc(toggleTodo)))
-	mux.Handle("DELETE /todos/{id}", withCORS(http.HandlerFunc(deleteTodo)))
+	mux.HandleFunc("/health", health)
+	mux.HandleFunc("/todos", todosHandler)
+	mux.HandleFunc("PUT /todos/{id}", toggleTodo)
+	mux.HandleFunc("DELETE /todos/{id}", deleteTodo)
 
 	log.Println("Server is running on port 8080")
 	// ListenAndServe blocca ed è in ascolto finché non c'è un errore fatale
 	// (es. porta già occupata). log.Fatal stampa l'errore e chiude il programma:
 	// senza, un errore all'avvio passerebbe inosservato.
-	// Passiamo mux (non più nil) come router: ora è lui a gestire tutte le richieste.
-	log.Fatal(http.ListenAndServe(":8080", mux))
+	// withCORS avvolge l'intero mux (non più i singoli handler): così gira
+	// per QUALSIASI richiesta, incluse le OPTIONS di preflight — se avvolgessimo
+	// i singoli handler, un'OPTIONS su "/todos/{id}" non troverebbe nessun
+	// pattern registrato per quel metodo e ServeMux risponderebbe 405
+	// prima ancora di raggiungere withCORS, facendo fallire il preflight.
+	log.Fatal(http.ListenAndServe(":8080", withCORS(mux)))
 }
 
 // Un handler ha sempre questa firma: riceve dove scrivere la risposta (w)
@@ -152,6 +153,17 @@ func withCORS(next http.Handler) http.Handler {
 		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		// Per metodi come PUT/DELETE (o richieste con Content-Type custom),
+		// il browser manda prima una OPTIONS "di controllo" (preflight) per
+		// chiedere il permesso, e manda la richiesta vera solo se la risposta
+		// a questa OPTIONS è positiva. Qui rispondiamo subito, senza inoltrarla
+		// a next: gli header CORS impostati sopra bastano per farla accettare.
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent) // 204: preflight ok, nessun body
+			return
+		}
+
 		next.ServeHTTP(w, r) // passa la richiesta all'handler originale
 	})
 }

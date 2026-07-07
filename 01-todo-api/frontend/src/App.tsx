@@ -50,7 +50,23 @@ function App() {
     setTitle(''); // svuota l'input, pronto per la prossima todo
   }
 
+  function handleToggleDone(id: number) {
+
+fetch(`http://localhost:8080/todos/${id}`, { method: 'PUT' })
+  .then(response => response.json())
+  .then(updatedTodo => setTodos(todos.map(todo => (todo.id === id ? updatedTodo : todo))))
+  .catch(error => console.error('Errore durante l\'aggiornamento:', error));
+  }
+
+  function handleDelete(id: number) {
+
+  fetch(`http://localhost:8080/todos/${id}`, { method: 'DELETE' })
+    .then(() => setTodos(todos.filter(todo => todo.id !== id)))
+    .catch(error => console.error('Errore durante la cancellazione:', error));
+}
+
   return (
+
     <>
       <div>
         <h1>Todo List</h1>
@@ -76,12 +92,15 @@ function App() {
               <li key={todo.id}>
                 <span>{todo.title}</span>
                 <span>{todo.done ? ' (Done)' : ' (Not Done)'}</span>
+                <button onClick={() => handleToggleDone(todo.id)}>Spunta</button>
+                <button onClick={() => handleDelete(todo.id)}>Elimina</button>
               </li>
             ))}
           </ul>
         </div>
       </div>
     </>
+
   )
 }
 
