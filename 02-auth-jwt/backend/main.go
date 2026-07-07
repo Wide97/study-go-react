@@ -5,7 +5,19 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"golang.org/x/crypto/bcrypt"
 )
+
+var demoUser = User{
+	Email:        "demo@example.com",
+	PasswordHash: "$2a$10$rSUOmWsnmo536ewsL1Si1O5qJUTHqGgxMY/cUwhmiW2FQWD02UC3u",
+}
+
+type User struct {
+	Email        string
+	PasswordHash string
+}
 
 type LoginRequest struct {
 	Email    string `json:"email"`
@@ -38,6 +50,16 @@ func login(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+
+	if req.Email != demoUser.Email {
+		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
+		return
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(demoUser.PasswordHash), []byte(req.Password))
+	if err != nil {
+		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
 		return
 	}
 

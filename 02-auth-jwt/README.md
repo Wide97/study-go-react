@@ -27,8 +27,8 @@ Scopo: costruire una piccola autenticazione full-stack con backend Go e frontend
 ## Stato: in corso
 
 - [x] Backend Go inizializzato (`backend/go.mod`)
-- [ ] Backend: server HTTP base
-- [ ] Backend: `POST /login`
+- [x] Backend: server HTTP base
+- [x] Backend: `POST /login` con verifica credenziali e bcrypt
 - [ ] Backend: generazione JWT
 - [ ] Backend: middleware auth
 - [ ] Backend: endpoint protetto `GET /me`
