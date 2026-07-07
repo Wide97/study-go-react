@@ -27,20 +27,27 @@ type Todo struct {
 }
 
 func main() {
-	// http.HandleFunc registra quale funzione gestisce quale richiesta.
-	// Da Go 1.22 il pattern può includere il metodo HTTP ("PUT ...")
-	// e parametri nel path ("{id}"): il server fa da solo il match
-	// su metodo + path, senza bisogno di controllarlo a mano dentro l'handler.
-	http.HandleFunc("/health", health)
-	http.HandleFunc("/todos", todosHandler)
-	http.HandleFunc("PUT /todos/{id}", toggleTodo)
-	http.HandleFunc("DELETE /todos/{id}", deleteTodo)
+	// mux (ServeMux) è il router: decide quale handler chiamare in base
+	// a metodo+path. Prima usavamo http.HandleFunc, che registra sul mux
+	// "di default" globale — qui ne creiamo uno esplicito per poterlo
+	// avvolgere tutto insieme con withCORS in un colpo solo.
+	// Il pattern può includere il metodo HTTP ("PUT ...") e parametri
+	// nel path ("{id}"), letti poi con r.PathValue("id") dentro l'handler.
+	mux := http.NewServeMux()
+	// Ogni handler viene "avvolto" da withCORS prima di essere registrato:
+	// http.HandlerFunc(f) converte una funzione con la firma giusta
+	// nel tipo http.Handler che withCORS si aspetta in ingresso.
+	mux.Handle("/health", withCORS(http.HandlerFunc(health)))
+	mux.Handle("/todos", withCORS(http.HandlerFunc(todosHandler)))
+	mux.Handle("PUT /todos/{id}", withCORS(http.HandlerFunc(toggleTodo)))
+	mux.Handle("DELETE /todos/{id}", withCORS(http.HandlerFunc(deleteTodo)))
 
 	log.Println("Server is running on port 8080")
 	// ListenAndServe blocca ed è in ascolto finché non c'è un errore fatale
 	// (es. porta già occupata). log.Fatal stampa l'errore e chiude il programma:
 	// senza, un errore all'avvio passerebbe inosservato.
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	// Passiamo mux (non più nil) come router: ora è lui a gestire tutte le richieste.
+	log.Fatal(http.ListenAndServe(":8080", mux))
 }
 
 // Un handler ha sempre questa firma: riceve dove scrivere la risposta (w)
@@ -131,4 +138,20 @@ func deleteTodo(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	http.Error(w, "Todo not found", http.StatusNotFound)
+}
+
+// withCORS è un middleware: una funzione che prende un handler (next)
+// e ne restituisce uno nuovo che fa qualcosa in più prima di eseguirlo.
+// Serve perché il browser blocca di default le richieste fetch verso
+// un origin diverso (protocollo+dominio+porta) da quello della pagina:
+// il frontend Vite gira su :5173, il backend Go su :8080, quindi per
+// il browser sono origin diversi anche se sono entrambi "localhost".
+// Gli header sotto dicono esplicitamente al browser "fidati di :5173".
+func withCORS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		next.ServeHTTP(w, r) // passa la richiesta all'handler originale
+	})
 }
