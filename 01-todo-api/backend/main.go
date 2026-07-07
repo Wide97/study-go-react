@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 var todos = []Todo{
@@ -22,7 +23,7 @@ type Todo struct {
 func main() {
 	http.HandleFunc("/health", health)
 	http.HandleFunc("/todos", todosHandler)
-	http.HandleFunc("/todos/update/{id}", updateTodos)
+	http.HandleFunc("PUT /todos/{id}", toggleTodo)
 	log.Println("Server is running on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
@@ -51,24 +52,21 @@ func todosHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func updateTodos(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPut {
-		var updatedTodo Todo
-		err := json.NewDecoder(r.Body).Decode(&updatedTodo)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+func toggleTodo(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+
+	for i, todo := range todos {
+		if todo.ID == id {
+			todos[i].Done = !todos[i].Done
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(todos[i])
 			return
 		}
-		for i, todo := range todos {
-			if todo.ID == updatedTodo.ID {
-				todos[i] = updatedTodo
-				w.Header().Set("Content-Type", "application/json")
-				json.NewEncoder(w).Encode(updatedTodo)
-				return
-			}
-		}
-		http.Error(w, "Todo not found", http.StatusNotFound)
-	} else {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
+	http.Error(w, "Todo not found", http.StatusNotFound)
 }
