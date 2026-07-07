@@ -38,7 +38,7 @@ study/
 
 Focus su full-stack Go (backend) + React (frontend) per far lavorare insieme i due lati, spingendo soprattutto sul fronte React dato che è la parte da consolidare.
 
-- [ ] **To-do CRUD** — API REST in Go (net/http o chi/echo/fiber) + frontend React con fetch/axios, gestione stato locale, form. Concetti: routing REST, hook `useState`/`useEffect`, gestione form controllati.
+- [x] **To-do CRUD** — completato in `01-todo-api/` (Go net/http + React/TS + Bootstrap). Vedi il README del progetto per dettagli e concetti coperti.
 - [ ] **Auth semplice (JWT)** — login/logout, rotte protette lato React (context o router guard), middleware di auth in Go. Concetti: Context API, protected routes, gestione token/refresh.
 - [ ] **Dashboard realtime** — backend Go che espone dati via WebSocket (es. contatore, dati finti tipo sensori), frontend React che li visualizza live con grafici. Concetti: WebSocket lato client, gestione stato che cambia in tempo reale, librerie di charting (recharts/visx).
 - [ ] **App con stato globale complesso** — es. carrello o gestione multi-entità con relazioni. Concetti: Context API avanzato o libreria di state management (Zustand/Redux Toolkit), custom hooks.
