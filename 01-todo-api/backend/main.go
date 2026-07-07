@@ -24,6 +24,7 @@ func main() {
 	http.HandleFunc("/health", health)
 	http.HandleFunc("/todos", todosHandler)
 	http.HandleFunc("PUT /todos/{id}", toggleTodo)
+	http.HandleFunc("DELETE /todos/{id}", deleteTodo)
 	log.Println("Server is running on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
@@ -65,6 +66,23 @@ func toggleTodo(w http.ResponseWriter, r *http.Request) {
 			todos[i].Done = !todos[i].Done
 			w.Header().Set("Content-Type", "application/json")
 			json.NewEncoder(w).Encode(todos[i])
+			return
+		}
+	}
+	http.Error(w, "Todo not found", http.StatusNotFound)
+}
+
+func deleteTodo(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+	for i, todo := range todos {
+		if todo.ID == id {
+			todos = append(todos[:i], todos[i+1:]...)
+			w.WriteHeader(http.StatusNoContent)
 			return
 		}
 	}
