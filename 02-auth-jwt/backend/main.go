@@ -6,6 +6,10 @@ import (
 	// che arriva come JSON, e lo decodifichiamo dentro LoginRequest.
 	"encoding/json"
 
+	// time serve per lavorare con date e durate.
+	// Nel JWT lo usiamo per calcolare la scadenza del token: "adesso + 1 ora".
+	"time"
+
 	// fmt contiene funzioni per scrivere/formattare testo.
 	// Qui lo usiamo solo per rispondere "Ok" nell'endpoint /health.
 	"fmt"
@@ -18,6 +22,11 @@ import (
 	// net/http è il pacchetto standard Go per server e client HTTP.
 	// Qui usiamo server, router, handler, status code e funzioni di errore.
 	"net/http"
+
+	// jwt/v5 è la libreria che usiamo per creare, firmare e poi verificare
+	// JSON Web Token. In questo step lo usiamo solo per generare il token
+	// dopo un login valido.
+	"github.com/golang-jwt/jwt/v5"
 
 	// bcrypt è un algoritmo pensato per salvare password in modo sicuro.
 	// Non si confronta mai la password in chiaro salvata da qualche parte:
@@ -38,6 +47,14 @@ var demoUser = User{
 	Email:        "demo@example.com",
 	PasswordHash: "$2a$10$rSUOmWsnmo536ewsL1Si1O5qJUTHqGgxMY/cUwhmiW2FQWD02UC3u",
 }
+
+// jwtSecret è la chiave usata per firmare il token.
+// Con HS256 la firma è "simmetrica": la stessa chiave serve sia per generare
+// il token sia per verificarlo quando il client lo rimanderà al backend.
+//
+// In un progetto reale questa stringa NON starebbe hardcoded nel codice:
+// verrebbe letta da variabile d'ambiente o secret manager.
+var jwtSecret = []byte("dev-secret")
 
 // User rappresenta l'utente interno al backend.
 // Non ha tag json perché non viene letto direttamente da una richiesta
@@ -69,12 +86,11 @@ type LoginRequest struct {
 	Password string `json:"password"`
 }
 
-// LoginResponse descrive il JSON che il backend manda quando il login riesce.
-// Per ora contiene solo un messaggio. Nel prossimo step lo sostituiremo con
-// un token JWT, perché il frontend dovrà conservarlo e rimandarlo nelle
-// richieste protette.
+// LoginResponse descrive il JSON che il backend manda quando il login riesce:
+// un token JWT che il frontend dovrà conservare e rimandare nelle richieste
+// protette con header Authorization.
 type LoginResponse struct {
-	Message string `json:"message"`
+	Token string `json:"token"`
 }
 
 func main() {
@@ -114,7 +130,8 @@ func health(w http.ResponseWriter, r *http.Request) {
 // 1. leggere il JSON mandato dal client;
 // 2. verificare che l'email esista;
 // 3. verificare che la password combaci con l'hash bcrypt;
-// 4. rispondere JSON se il login è valido.
+// 4. generare un JWT;
+// 5. rispondere JSON con il token se il login è valido.
 func login(w http.ResponseWriter, r *http.Request) {
 	// req partirà vuota. Decode la riempirà leggendo il body della richiesta.
 	// Serve passare &req, cioè l'indirizzo della variabile, perché Decode deve
@@ -155,9 +172,18 @@ func login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Se siamo arrivati qui, email e password sono corrette.
-	// Per ora rispondiamo con un messaggio; poi questa response conterrà il JWT.
+	// Ora generiamo un token firmato: sarà la "prova" che il client ha fatto
+	// login correttamente.
+	token, err := generateToken(demoUser.Email)
+	if err != nil {
+		// Se non riusciamo a generare il token, non è colpa del client:
+		// il problema è interno al backend, quindi 500.
+		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+		return
+	}
+
 	response := LoginResponse{
-		Message: "Login successful",
+		Token: token,
 	}
 
 	// Prima di scrivere il body, dichiariamo che la risposta è JSON.
@@ -165,6 +191,32 @@ func login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	// Encode converte la struct Go in JSON e la scrive nella risposta.
-	// LoginResponse{Message: "..."} diventa {"message":"..."}.
+	// LoginResponse{Token: "..."} diventa {"token":"..."}.
 	json.NewEncoder(w).Encode(response)
+}
+
+// generateToken crea un JWT per l'utente autenticato.
+//
+// Il valore di ritorno è una stringa già firmata, pronta da mandare al frontend.
+// Il secondo valore è un error perché la firma può fallire.
+func generateToken(userEmail string) (string, error) {
+	// MapClaims è una mappa libera di dati da mettere nel token.
+	// Usiamo due claim standard:
+	// - sub: subject, cioè "di chi parla" il token. Qui è l'email utente.
+	// - exp: expiration time, cioè quando il token scade.
+	//
+	// exp nei JWT è un timestamp Unix: numero di secondi dal 1 gennaio 1970.
+	claims := jwt.MapClaims{
+		"sub": userEmail,
+		"exp": time.Now().Add(time.Hour).Unix(),
+	}
+
+	// NewWithClaims crea l'oggetto token ma non lo firma ancora.
+	// SigningMethodHS256 indica l'algoritmo di firma: HMAC + SHA-256.
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	// SignedString firma il token usando jwtSecret e restituisce la stringa
+	// finale composta da tre parti separate da punti:
+	// header.payload.signature
+	return token.SignedString(jwtSecret)
 }
