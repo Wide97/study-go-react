@@ -6,6 +6,11 @@ import (
 	// che arriva come JSON, e lo decodifichiamo dentro LoginRequest.
 	"encoding/json"
 
+	// strings contiene funzioni utili per lavorare con stringhe.
+	// Qui lo usiamo per controllare ed eliminare il prefisso "Bearer "
+	// dall'header Authorization.
+	"strings"
+
 	// time serve per lavorare con date e durate.
 	// Nel JWT lo usiamo per calcolare la scadenza del token: "adesso + 1 ora".
 	"time"
@@ -23,9 +28,8 @@ import (
 	// Qui usiamo server, router, handler, status code e funzioni di errore.
 	"net/http"
 
-	// jwt/v5 è la libreria che usiamo per creare, firmare e poi verificare
-	// JSON Web Token. In questo step lo usiamo solo per generare il token
-	// dopo un login valido.
+	// jwt/v5 è la libreria che usiamo per creare, firmare e verificare
+	// JSON Web Token.
 	"github.com/golang-jwt/jwt/v5"
 
 	// bcrypt è un algoritmo pensato per salvare password in modo sicuro.
@@ -55,6 +59,12 @@ var demoUser = User{
 // In un progetto reale questa stringa NON starebbe hardcoded nel codice:
 // verrebbe letta da variabile d'ambiente o secret manager.
 var jwtSecret = []byte("dev-secret")
+
+// MeResponse descrive il JSON restituito da GET /me.
+// È una rotta protetta: risponde solo se il client manda un JWT valido.
+type MeResponse struct {
+	Email string `json:"email"`
+}
 
 // User rappresenta l'utente interno al backend.
 // Non ha tag json perché non viene letto direttamente da una richiesta
@@ -102,6 +112,11 @@ func main() {
 	// "GET /health" significa: questa funzione risponde solo a GET /health.
 	// Se provi POST /health, il router può rispondere 405 Method Not Allowed.
 	mux.HandleFunc("GET /health", health)
+
+	// GET /me è la prima rotta protetta.
+	// Non basta chiamarla: il client deve mandare un header Authorization
+	// con un token valido ricevuto da POST /login.
+	mux.HandleFunc("GET /me", me)
 
 	// POST /login riceve credenziali nel body.
 	// Usiamo POST, non GET, perché stiamo inviando dati sensibili e perché il
@@ -219,4 +234,77 @@ func generateToken(userEmail string) (string, error) {
 	// finale composta da tre parti separate da punti:
 	// header.payload.signature
 	return token.SignedString(jwtSecret)
+}
+
+// me gestisce GET /me.
+// È una rotta protetta: prima valida il JWT, poi restituisce i dati dell'utente.
+//
+// In questo step la verifica è scritta direttamente nell'handler per vedere
+// tutti i passaggi. Nel prossimo step la estrarremo in un middleware, così
+// la stessa logica potrà proteggere più rotte senza duplicazione.
+func me(w http.ResponseWriter, r *http.Request) {
+	// Il token arriva in un header HTTP, non nel body.
+	// Lo standard pratico più comune è:
+	// Authorization: Bearer <token>
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		http.Error(w, "Missing Authorization header", http.StatusUnauthorized)
+		return
+	}
+
+	// Controlliamo il prefisso perché Authorization può contenere schemi
+	// diversi. Qui accettiamo solo Bearer token.
+	if !strings.HasPrefix(authHeader, "Bearer ") {
+		http.Error(w, "Invalid authorization header", http.StatusUnauthorized)
+		return
+	}
+
+	// Tolto "Bearer ", resta solo la stringa JWT: header.payload.signature.
+	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+
+	// jwt.Parse legge il token, verifica la firma e valida i claim standard
+	// supportati dalla libreria, come exp.
+	//
+	// La funzione callback serve alla libreria per sapere quale chiave usare
+	// per verificare la firma. Prima controlliamo anche che l'algoritmo sia
+	// HMAC, cioè la famiglia di HS256 usata da generateToken.
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (any, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+
+		return jwtSecret, nil
+	})
+
+	// Se Parse ha dato errore, oppure il token esiste ma non è valido, la
+	// richiesta non è autenticata.
+	if err != nil || !token.Valid {
+		http.Error(w, "Invalid token", http.StatusUnauthorized)
+		return
+	}
+
+	// I claims sono i dati dentro il token.
+	// Siccome in generateToken abbiamo usato jwt.MapClaims, qui ci aspettiamo
+	// di poter leggere token.Claims come jwt.MapClaims.
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		http.Error(w, "Invalid token claims", http.StatusUnauthorized)
+		return
+	}
+
+	// sub è il subject del token: nel nostro caso l'email dell'utente.
+	// Il valore dentro una mappa interface{} va convertito al tipo atteso,
+	// quindi controlliamo che sia davvero una stringa.
+	email, ok := claims["sub"].(string)
+	if !ok {
+		http.Error(w, "Invalid token subject", http.StatusUnauthorized)
+		return
+	}
+
+	response := MeResponse{
+		Email: email,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }
