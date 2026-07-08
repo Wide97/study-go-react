@@ -137,7 +137,7 @@ func main() {
 	// È una chiamata bloccante: il programma resta qui finché il server gira.
 	// Se qualcosa va storto, per esempio porta occupata, restituisce un errore.
 	// log.Fatal stampa quell'errore e chiude il programma.
-	log.Fatal(http.ListenAndServe(":8080", mux))
+	log.Fatal(http.ListenAndServe(":8080", withCORS(mux)))
 }
 
 // Un handler ha sempre questa firma: riceve dove scrivere la risposta (w)
@@ -341,5 +341,34 @@ func withAuth(next http.Handler) http.Handler {
 		// che porta quel context aggiornato.
 		ctx := context.WithValue(r.Context(), emailContextKey, email)
 		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+// withCORS è un middleware che permette al frontend Vite di chiamare il backend.
+// Browser e server considerano "origin" diversi se cambia protocollo, dominio
+// o porta: http://localhost:5173 e http://localhost:8080 sono quindi diversi.
+//
+// Senza questi header, il browser bloccherebbe le fetch del frontend prima
+// ancora di consegnare la risposta al codice React.
+func withCORS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Permettiamo solo il frontend locale usato da Vite.
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+
+		// Metodi che il browser può usare verso questa API.
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+
+		// Header custom ammessi. Authorization serve per mandare il Bearer token.
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		// Prima di alcune richieste, il browser manda una OPTIONS di preflight:
+		// chiede al backend se la richiesta vera sarà permessa.
+		// Rispondiamo subito 204, senza passare al router.
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		next.ServeHTTP(w, r)
 	})
 }
