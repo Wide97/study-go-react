@@ -1,6 +1,10 @@
 package main
 
 import (
+	// context serve per portare dati legati a una singola richiesta HTTP.
+	// Il middleware lo usa per passare l'email autenticata all'handler finale.
+	"context"
+
 	// encoding/json serve per trasformare JSON <-> struct Go.
 	// Nel login lo usiamo in ingresso: leggiamo il body della richiesta HTTP,
 	// che arriva come JSON, e lo decodifichiamo dentro LoginRequest.
@@ -51,6 +55,10 @@ var demoUser = User{
 	Email:        "demo@example.com",
 	PasswordHash: "$2a$10$rSUOmWsnmo536ewsL1Si1O5qJUTHqGgxMY/cUwhmiW2FQWD02UC3u",
 }
+
+type contextKey string
+
+const emailContextKey contextKey = "email"
 
 // jwtSecret è la chiave usata per firmare il token.
 // Con HS256 la firma è "simmetrica": la stessa chiave serve sia per generare
@@ -116,7 +124,7 @@ func main() {
 	// GET /me è la prima rotta protetta.
 	// Non basta chiamarla: il client deve mandare un header Authorization
 	// con un token valido ricevuto da POST /login.
-	mux.HandleFunc("GET /me", me)
+	mux.Handle("GET /me", withAuth(http.HandlerFunc(me)))
 
 	// POST /login riceve credenziali nel body.
 	// Usiamo POST, non GET, perché stiamo inviando dati sensibili e perché il
@@ -239,13 +247,11 @@ func generateToken(userEmail string) (string, error) {
 // me gestisce GET /me.
 // È una rotta protetta: prima valida il JWT, poi restituisce i dati dell'utente.
 //
-// L'handler delega la lettura/verifica del token a getEmailFromToken: in questo
-// modo me resta concentrato sulla risposta HTTP, non sui dettagli del JWT.
+// L'handler non legge direttamente l'header Authorization: ci pensa withAuth.
+// Qui leggiamo solo l'email che il middleware ha salvato nel context.
 func me(w http.ResponseWriter, r *http.Request) {
-	email, err := getEmailFromToken(r)
-	if err != nil {
-		// Al client basta sapere che non è autorizzato.
-		// Il dettaglio tecnico dell'errore resta interno al backend.
+	email, ok := r.Context().Value(emailContextKey).(string)
+	if !ok {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
@@ -315,4 +321,25 @@ func getEmailFromToken(r *http.Request) (string, error) {
 		return "", fmt.Errorf("invalid token subject")
 	}
 	return email, nil
+}
+
+// withAuth è un middleware di autenticazione.
+// Prende un handler "protetto" (next) e restituisce un nuovo handler che:
+// 1. valida il token JWT;
+// 2. salva l'email utente nel context della request;
+// 3. chiama l'handler finale solo se l'autenticazione è valida.
+func withAuth(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		email, err := getEmailFromToken(r)
+		if err != nil {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		// context.WithValue non modifica il context originale: ne crea uno nuovo
+		// con un valore in più. r.WithContext crea poi una copia della request
+		// che porta quel context aggiornato.
+		ctx := context.WithValue(r.Context(), emailContextKey, email)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }

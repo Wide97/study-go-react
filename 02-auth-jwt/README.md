@@ -30,7 +30,7 @@ Scopo: costruire una piccola autenticazione full-stack con backend Go e frontend
 - [x] Backend: server HTTP base
 - [x] Backend: `POST /login` con verifica credenziali e bcrypt
 - [x] Backend: generazione JWT
-- [ ] Backend: middleware auth
+- [x] Backend: middleware auth
 - [x] Backend: endpoint protetto `GET /me`
 - [ ] Frontend React inizializzato
 - [ ] Frontend: login/logout
