@@ -239,24 +239,41 @@ func generateToken(userEmail string) (string, error) {
 // me gestisce GET /me.
 // È una rotta protetta: prima valida il JWT, poi restituisce i dati dell'utente.
 //
-// In questo step la verifica è scritta direttamente nell'handler per vedere
-// tutti i passaggi. Nel prossimo step la estrarremo in un middleware, così
-// la stessa logica potrà proteggere più rotte senza duplicazione.
+// L'handler delega la lettura/verifica del token a getEmailFromToken: in questo
+// modo me resta concentrato sulla risposta HTTP, non sui dettagli del JWT.
 func me(w http.ResponseWriter, r *http.Request) {
+	email, err := getEmailFromToken(r)
+	if err != nil {
+		// Al client basta sapere che non è autorizzato.
+		// Il dettaglio tecnico dell'errore resta interno al backend.
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	response := MeResponse{
+		Email: email,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
+// getEmailFromToken contiene la logica riusabile di autenticazione:
+// prende una richiesta HTTP, cerca il JWT nell'header Authorization,
+// lo valida e restituisce l'email dentro il claim sub.
+func getEmailFromToken(r *http.Request) (string, error) {
 	// Il token arriva in un header HTTP, non nel body.
 	// Lo standard pratico più comune è:
 	// Authorization: Bearer <token>
 	authHeader := r.Header.Get("Authorization")
 	if authHeader == "" {
-		http.Error(w, "Missing Authorization header", http.StatusUnauthorized)
-		return
+		return "", fmt.Errorf("missing Authorization header")
 	}
 
 	// Controlliamo il prefisso perché Authorization può contenere schemi
 	// diversi. Qui accettiamo solo Bearer token.
 	if !strings.HasPrefix(authHeader, "Bearer ") {
-		http.Error(w, "Invalid authorization header", http.StatusUnauthorized)
-		return
+		return "", fmt.Errorf("invalid authorization header")
 	}
 
 	// Tolto "Bearer ", resta solo la stringa JWT: header.payload.signature.
@@ -279,8 +296,7 @@ func me(w http.ResponseWriter, r *http.Request) {
 	// Se Parse ha dato errore, oppure il token esiste ma non è valido, la
 	// richiesta non è autenticata.
 	if err != nil || !token.Valid {
-		http.Error(w, "Invalid token", http.StatusUnauthorized)
-		return
+		return "", fmt.Errorf("invalid token")
 	}
 
 	// I claims sono i dati dentro il token.
@@ -288,8 +304,7 @@ func me(w http.ResponseWriter, r *http.Request) {
 	// di poter leggere token.Claims come jwt.MapClaims.
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		http.Error(w, "Invalid token claims", http.StatusUnauthorized)
-		return
+		return "", fmt.Errorf("invalid token claims")
 	}
 
 	// sub è il subject del token: nel nostro caso l'email dell'utente.
@@ -297,14 +312,7 @@ func me(w http.ResponseWriter, r *http.Request) {
 	// quindi controlliamo che sia davvero una stringa.
 	email, ok := claims["sub"].(string)
 	if !ok {
-		http.Error(w, "Invalid token subject", http.StatusUnauthorized)
-		return
+		return "", fmt.Errorf("invalid token subject")
 	}
-
-	response := MeResponse{
-		Email: email,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	return email, nil
 }
