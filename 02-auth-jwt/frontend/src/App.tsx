@@ -8,6 +8,7 @@ interface LoginResponse {
 function App() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [token, setToken] = useState('')
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -24,6 +25,7 @@ function App() {
     }
 
     const data: LoginResponse = await response.json()
+    setToken(data.token)
     console.log(data.token)
   }
 
@@ -59,6 +61,12 @@ function App() {
             Login
           </button>
         </form>
+
+        {token !== '' && (
+          <div className="alert alert-success mt-3">
+            Login riuscito
+          </div>
+        )}
       </section>
     </main>
   )
