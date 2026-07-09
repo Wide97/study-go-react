@@ -40,7 +40,7 @@ Il frontend si collega al backend e aggiorna la UI quando arrivano nuovi dati, s
 - [x] Frontend React inizializzato
 - [x] Frontend: connessione WebSocket
 - [x] Frontend: visualizzazione valore live
-- [ ] Frontend: gestione stato connessione
+- [x] Frontend: gestione stato connessione
 
 ## Metodo
 
