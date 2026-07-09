@@ -1,13 +1,18 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 
+interface SensorMessage {
+  value: number;
+}
+
 function App() {
-  const [value] = useState<number | null>(null);
+  const [value, setValue] = useState<number | null>(null);
   useEffect(() => {
     const socket = new WebSocket("ws://localhost:8080/ws");
 
     socket.onmessage = (event) => {
-      console.log(event.data);
+      const message: SensorMessage = JSON.parse(event.data);
+      setValue(message.value);
     };
 
     return () => {

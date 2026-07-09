@@ -38,8 +38,8 @@ Il frontend si collega al backend e aggiorna la UI quando arrivano nuovi dati, s
 - [x] Backend: endpoint WebSocket
 - [x] Backend: invio dati finti periodici
 - [x] Frontend React inizializzato
-- [ ] Frontend: connessione WebSocket
-- [ ] Frontend: visualizzazione valore live
+- [x] Frontend: connessione WebSocket
+- [x] Frontend: visualizzazione valore live
 - [ ] Frontend: gestione stato connessione
 
 ## Metodo
