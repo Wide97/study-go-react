@@ -29,13 +29,26 @@ type SensorMessage struct {
 	Value int `json:"value"`
 }
 
+// frontendOrigin è l'origin del dev server Vite.
+// Origin = protocollo + host + porta. Quindi localhost:5173 e localhost:8080
+// sono origin diversi anche se girano sulla stessa macchina.
+const frontendOrigin = "http://localhost:5173"
+
 // Upgrader è l'oggetto che trasforma una richiesta HTTP normale in una
 // connessione WebSocket.
 //
 // Il client arriva con una richiesta GET /ws che contiene header speciali
 // ("Upgrade: websocket"). Se tutto è valido, Upgrade risponde con uno status
 // 101 Switching Protocols e da quel momento la connessione resta aperta.
-var upgrader = websocket.Upgrader{}
+var upgrader = websocket.Upgrader{
+	// WebSocket non usa il preflight CORS come fetch, ma il browser manda
+	// comunque l'header Origin. Gorilla, per sicurezza, rifiuta origin diversi
+	// se non diciamo esplicitamente quali accettare.
+	CheckOrigin: func(r *http.Request) bool {
+		origin := r.Header.Get("Origin")
+		return origin == "" || origin == frontendOrigin
+	},
+}
 
 func main() {
 	// ServeMux è il router: associa metodo+path agli handler.
@@ -51,7 +64,9 @@ func main() {
 
 	// ListenAndServe resta in ascolto sulla porta 8080.
 	// log.Fatal stampa eventuali errori fatali, per esempio porta già occupata.
-	log.Fatal(http.ListenAndServe(":8080", mux))
+	// withCORS avvolge tutto il router, così eventuali richieste HTTP dal
+	// frontend Vite ricevono gli header corretti.
+	log.Fatal(http.ListenAndServe(":8080", withCORS(mux)))
 }
 
 // Un handler ha sempre questa firma: riceve dove scrivere la risposta (w)
@@ -109,4 +124,22 @@ func websocketHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+}
+
+// withCORS permette al frontend Vite di chiamare endpoint HTTP del backend.
+// Per WebSocket la parte davvero importante è CheckOrigin sull'upgrader sopra;
+// questo middleware copre invece richieste HTTP normali come /health o future API.
+func withCORS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", frontendOrigin)
+		w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }

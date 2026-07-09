@@ -19,6 +19,7 @@ Il frontend si collega al backend e aggiorna la UI quando arrivano nuovi dati, s
 - endpoint HTTP base (`/health`)
 - differenza tra HTTP classico e WebSocket
 - upgrade della connessione HTTP a WebSocket
+- gestione Origin/CORS per frontend Vite
 - invio periodico di messaggi dal server al client
 - JSON per messaggi realtime
 - gestione errori e chiusura connessione
@@ -37,6 +38,7 @@ Il frontend si collega al backend e aggiorna la UI quando arrivano nuovi dati, s
 - [x] Backend: `GET /health`
 - [x] Backend: endpoint WebSocket
 - [x] Backend: invio dati finti periodici
+- [x] Backend: Origin/CORS per frontend Vite
 - [x] Frontend React inizializzato
 - [x] Frontend: connessione WebSocket
 - [x] Frontend: visualizzazione valore live
