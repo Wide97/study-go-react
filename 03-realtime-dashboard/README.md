@@ -35,7 +35,7 @@ Il frontend si collega al backend e aggiorna la UI quando arrivano nuovi dati, s
 
 - [x] Backend Go inizializzato
 - [x] Backend: `GET /health`
-- [ ] Backend: endpoint WebSocket
+- [x] Backend: endpoint WebSocket
 - [ ] Backend: invio dati finti periodici
 - [ ] Frontend React inizializzato
 - [ ] Frontend: connessione WebSocket
