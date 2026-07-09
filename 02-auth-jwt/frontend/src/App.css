@@ -26,3 +26,23 @@
   font-size: 32px;
   line-height: 1.2;
 }
+
+.protected-view {
+  display: grid;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.profile-box {
+  display: grid;
+  gap: 4px;
+  padding: 16px;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  background: #f8f9fa;
+}
+
+.profile-box span {
+  color: #6c757d;
+  font-size: 14px;
+}

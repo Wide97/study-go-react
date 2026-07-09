@@ -34,8 +34,8 @@ Scopo: costruire una piccola autenticazione full-stack con backend Go e frontend
 - [x] Backend: endpoint protetto `GET /me`
 - [x] Backend: CORS per frontend Vite
 - [x] Frontend React inizializzato
-- [ ] Frontend: login/logout
-- [ ] Frontend: schermata protetta
+- [x] Frontend: login/logout
+- [x] Frontend: schermata protetta
 
 ## Come lavoriamo
 
