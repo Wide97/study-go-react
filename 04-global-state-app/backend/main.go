@@ -30,7 +30,6 @@ var products = []Product{
 const frontendOrigin = "http://localhost:5173"
 
 func main() {
-
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /health", health)
@@ -44,7 +43,6 @@ func main() {
 	// withCORS avvolge tutto il router, così eventuali richieste HTTP dal
 	// frontend Vite ricevono gli header corretti.
 	log.Fatal(http.ListenAndServe(":8080", withCORS(mux)))
-
 }
 
 // Un handler ha sempre questa firma: riceve dove scrivere la risposta (w)
@@ -53,7 +51,6 @@ func health(w http.ResponseWriter, r *http.Request) {
 	// ResponseWriter è "la penna" con cui scriviamo la risposta HTTP.
 	// Qui non impostiamo Content-Type perché è solo testo semplice.
 	fmt.Fprint(w, "Ok")
-
 }
 
 // withCORS permette al frontend Vite di chiamare endpoint HTTP del backend.
