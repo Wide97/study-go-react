@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, createContext } from "react";
 import "./App.css";
 
 interface Product {
@@ -23,6 +23,17 @@ interface CartItem {
   product: Product;
   quantity: number;
 }
+
+interface CartContextValue {
+  cartItems: CartItem[];
+  totalQuantity: number;
+  totalPrice: number;
+  addToCart: (product: Product) => void;
+  decreaseQuantity: (productId: number) => void;
+  removeFromCart: (productId: number) => void;
+}
+
+const CartContext = createContext<CartContextValue | null>(null);
 
 function ProductList({ products, onAddToCart }: ProductListProps) {
   return (
@@ -172,23 +183,34 @@ function App() {
     setCartItems(cartItems.filter((item) => item.product.id !== productId));
   }
 
+  const cartContextValue: CartContextValue = {
+    cartItems,
+    totalQuantity,
+    totalPrice,
+    addToCart,
+    decreaseQuantity,
+    removeFromCart,
+  };
+
   return (
-    <main className="app-shell">
-      <section className="app-panel">
-        <p className="eyebrow">04 Global State App</p>
-        <h1>Mini carrello</h1>
-        <p className="status-text">Prodotti caricati: {products.length}</p>
-        <ProductList products={products} onAddToCart={addToCart} />
-        <p className="status-text">Articoli nel carrello: {totalQuantity}</p>
-        <CartView
-          cartItems={cartItems}
-          totalPrice={totalPrice}
-          onIncrease={addToCart}
-          onDecrease={decreaseQuantity}
-          onRemove={removeFromCart}
-        />
-      </section>
-    </main>
+    <CartContext.Provider value={cartContextValue}>
+      <main className="app-shell">
+        <section className="app-panel">
+          <p className="eyebrow">04 Global State App</p>
+          <h1>Mini carrello</h1>
+          <p className="status-text">Prodotti caricati: {products.length}</p>
+          <ProductList products={products} onAddToCart={addToCart} />
+          <p className="status-text">Articoli nel carrello: {totalQuantity}</p>
+          <CartView
+            cartItems={cartItems}
+            totalPrice={totalPrice}
+            onIncrease={addToCart}
+            onDecrease={decreaseQuantity}
+            onRemove={removeFromCart}
+          />
+        </section>
+      </main>
+    </CartContext.Provider>
   );
 }
 
