@@ -7,9 +7,40 @@ interface Product {
   price: number;
 }
 
+interface ProductListProps {
+  products: Product[];
+  onAddToCart: (product: Product) => void;
+}
+
 interface CartItem {
   product: Product;
   quantity: number;
+}
+
+function ProductList({ products, onAddToCart }: ProductListProps) {
+  return (
+    <ul className="list-group mt-3">
+      {products.map((product) => (
+        <li
+          key={product.id}
+          className="list-group-item d-flex justify-content-between align-items-center"
+        >
+          <span>{product.name}</span>
+
+          <div className="d-flex gap-2 align-items-center">
+            <strong>€ {product.price}</strong>
+            <button
+              type="button"
+              className="btn btn-sm btn-primary"
+              onClick={() => onAddToCart(product)}
+            >
+              Aggiungi
+            </button>{" "}
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
 }
 
 function App() {
@@ -82,27 +113,7 @@ function App() {
         <p className="eyebrow">04 Global State App</p>
         <h1>Mini carrello</h1>
         <p className="status-text">Prodotti caricati: {products.length}</p>
-        <ul className="list-group mt-3">
-          {products.map((product) => (
-            <li
-              key={product.id}
-              className="list-group-item d-flex justify-content-between align-items-center"
-            >
-              <span>{product.name}</span>
-
-              <div className="d-flex gap-2 align-items-center">
-                <strong>€ {product.price}</strong>
-                <button
-                  type="button"
-                  className="btn btn-sm btn-primary"
-                  onClick={() => addToCart(product)}
-                >
-                  Aggiungi
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <ProductList products={products} onAddToCart={addToCart} />
         <p className="status-text">Articoli nel carrello: {totalQuantity}</p>
         {cartItems.length > 0 && (
           <>
