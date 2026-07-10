@@ -12,6 +12,13 @@ interface ProductListProps {
   onAddToCart: (product: Product) => void;
 }
 
+interface CartViewProps {
+  cartItems: CartItem[];
+  totalPrice: number;
+  onIncrease: (product: Product) => void;
+  onDecrease: (productId: number) => void;
+  onRemove: (productId: number) => void;
+}
 interface CartItem {
   product: Product;
   quantity: number;
@@ -35,11 +42,69 @@ function ProductList({ products, onAddToCart }: ProductListProps) {
               onClick={() => onAddToCart(product)}
             >
               Aggiungi
-            </button>{" "}
+            </button>
           </div>
         </li>
       ))}
     </ul>
+  );
+}
+
+function CartView({
+  cartItems,
+  totalPrice,
+  onIncrease,
+  onDecrease,
+  onRemove,
+}: CartViewProps) {
+  if (cartItems.length === 0) {
+    return null;
+  }
+
+  return (
+    <>
+      <h2 className="mt-4">Carrello</h2>
+
+      <ul className="list-group mt-3">
+        {cartItems.map((item) => (
+          <li
+            key={item.product.id}
+            className="list-group-item d-flex justify-content-between"
+          >
+            <span>{item.product.name}</span>
+            <div className="d-flex gap-2 align-items-center">
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-secondary"
+                onClick={() => onDecrease(item.product.id)}
+              >
+                -
+              </button>
+
+              <strong>Quantità: {item.quantity}</strong>
+
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-secondary"
+                onClick={() => onIncrease(item.product)}
+              >
+                +
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-danger"
+                onClick={() => onRemove(item.product.id)}
+              >
+                Rimuovi
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      <p className="status-text">Totale: € {totalPrice.toFixed(2)}</p>
+    </>
   );
 }
 
@@ -115,49 +180,13 @@ function App() {
         <p className="status-text">Prodotti caricati: {products.length}</p>
         <ProductList products={products} onAddToCart={addToCart} />
         <p className="status-text">Articoli nel carrello: {totalQuantity}</p>
-        {cartItems.length > 0 && (
-          <>
-            <h2 className="mt-4">Carrello</h2>
-
-            <ul className="list-group mt-3">
-              {cartItems.map((item) => (
-                <li
-                  key={item.product.id}
-                  className="list-group-item d-flex justify-content-between"
-                >
-                  <span>{item.product.name}</span>
-                  <div className="d-flex gap-2 align-items-center">
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-outline-secondary"
-                      onClick={() => decreaseQuantity(item.product.id)}
-                    >
-                      -
-                    </button>
-
-                    <strong>Quantità: {item.quantity}</strong>
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-outline-secondary"
-                      onClick={() => addToCart(item.product)}
-                    >
-                      +
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-outline-danger"
-                      onClick={() => removeFromCart(item.product.id)}
-                    >
-                      Rimuovi
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-
-            <p className="status-text">Totale: € {totalPrice.toFixed(2)}</p>
-          </>
-        )}
+        <CartView
+          cartItems={cartItems}
+          totalPrice={totalPrice}
+          onIncrease={addToCart}
+          onDecrease={decreaseQuantity}
+          onRemove={removeFromCart}
+        />
       </section>
     </main>
   );
