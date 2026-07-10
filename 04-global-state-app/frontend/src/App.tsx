@@ -22,7 +22,18 @@ function App() {
       <section className="app-panel">
         <p className="eyebrow">04 Global State App</p>
         <h1>Mini carrello</h1>
-        <p className="status-text">Prodotti caricati: {products.length}</p>{" "}
+        <p className="status-text">Prodotti caricati: {products.length}</p>
+        <ul className="list-group mt-3">
+          {products.map((product) => (
+            <li
+              key={product.id}
+              className="list-group-item d-flex justify-content-between"
+            >
+              <span>{product.name}</span>
+              <strong>€ {product.price}</strong>
+            </li>
+          ))}
+        </ul>
       </section>
     </main>
   );
