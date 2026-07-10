@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext } from "react";
+import { useState, useEffect, createContext, useContext } from "react";
 import "./App.css";
 
 interface Product {
@@ -10,14 +10,6 @@ interface Product {
 interface ProductListProps {
   products: Product[];
   onAddToCart: (product: Product) => void;
-}
-
-interface CartViewProps {
-  cartItems: CartItem[];
-  totalPrice: number;
-  onIncrease: (product: Product) => void;
-  onDecrease: (productId: number) => void;
-  onRemove: (productId: number) => void;
 }
 interface CartItem {
   product: Product;
@@ -61,13 +53,16 @@ function ProductList({ products, onAddToCart }: ProductListProps) {
   );
 }
 
-function CartView({
-  cartItems,
-  totalPrice,
-  onIncrease,
-  onDecrease,
-  onRemove,
-}: CartViewProps) {
+function CartView() {
+  const cart = useContext(CartContext);
+
+  if (cart === null) {
+    return null;
+  }
+
+  const { cartItems, totalPrice, addToCart, decreaseQuantity, removeFromCart } =
+    cart;
+
   if (cartItems.length === 0) {
     return null;
   }
@@ -87,7 +82,7 @@ function CartView({
               <button
                 type="button"
                 className="btn btn-sm btn-outline-secondary"
-                onClick={() => onDecrease(item.product.id)}
+                onClick={() => decreaseQuantity(item.product.id)}
               >
                 -
               </button>
@@ -97,7 +92,7 @@ function CartView({
               <button
                 type="button"
                 className="btn btn-sm btn-outline-secondary"
-                onClick={() => onIncrease(item.product)}
+                onClick={() => addToCart(item.product)}
               >
                 +
               </button>
@@ -105,7 +100,7 @@ function CartView({
               <button
                 type="button"
                 className="btn btn-sm btn-outline-danger"
-                onClick={() => onRemove(item.product.id)}
+                onClick={() => removeFromCart(item.product.id)}
               >
                 Rimuovi
               </button>
@@ -201,13 +196,7 @@ function App() {
           <p className="status-text">Prodotti caricati: {products.length}</p>
           <ProductList products={products} onAddToCart={addToCart} />
           <p className="status-text">Articoli nel carrello: {totalQuantity}</p>
-          <CartView
-            cartItems={cartItems}
-            totalPrice={totalPrice}
-            onIncrease={addToCart}
-            onDecrease={decreaseQuantity}
-            onRemove={removeFromCart}
-          />
+          <CartView />
         </section>
       </main>
     </CartContext.Provider>
