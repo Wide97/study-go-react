@@ -45,6 +45,10 @@ function App() {
     return sum + item.quantity;
   }, 0);
 
+  const totalPrice = cartItems.reduce((sum, item) => {
+    return sum + item.product.price * item.quantity;
+  }, 0);
+
   return (
     <main className="app-shell">
       <section className="app-panel">
@@ -88,6 +92,8 @@ function App() {
                 </li>
               ))}
             </ul>
+
+            <p className="status-text">Totale: € {totalPrice.toFixed(2)}</p>
           </>
         )}
       </section>
