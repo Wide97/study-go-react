@@ -49,6 +49,29 @@ function App() {
     return sum + item.product.price * item.quantity;
   }, 0);
 
+  function decreaseQuantity(productId: number) {
+    const existingItem = cartItems.find(
+      (item) => item.product.id === productId,
+    );
+
+    if (!existingItem) {
+      return;
+    }
+
+    if (existingItem.quantity === 1) {
+      setCartItems(cartItems.filter((item) => item.product.id !== productId));
+      return;
+    }
+
+    setCartItems(
+      cartItems.map((item) =>
+        item.product.id === productId
+          ? { ...item, quantity: item.quantity - 1 }
+          : item,
+      ),
+    );
+  }
+
   return (
     <main className="app-shell">
       <section className="app-panel">
@@ -88,7 +111,17 @@ function App() {
                   className="list-group-item d-flex justify-content-between"
                 >
                   <span>{item.product.name}</span>
-                  <strong>Quantità: {item.quantity}</strong>
+                  <div className="d-flex gap-2 align-items-center">
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-secondary"
+                      onClick={() => decreaseQuantity(item.product.id)}
+                    >
+                      -
+                    </button>
+
+                    <strong>Quantità: {item.quantity}</strong>
+                  </div>
                 </li>
               ))}
             </ul>
