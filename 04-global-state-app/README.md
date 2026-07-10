@@ -42,7 +42,7 @@ Il backend espone i dati iniziali e, per ora, non usa database.
 - [x] Frontend React inizializzato
 - [x] Frontend: lista prodotti
 - [ ] Frontend: Context per carrello
-- [ ] Frontend: aggiunta/rimozione/modifica quantità
+- [x] Frontend: aggiunta/rimozione/modifica quantità
 - [x] Frontend: totale carrello
 
 ## Metodo

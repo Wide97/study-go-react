@@ -72,6 +72,10 @@ function App() {
     );
   }
 
+  function removeFromCart(productId: number) {
+    setCartItems(cartItems.filter((item) => item.product.id !== productId));
+  }
+
   return (
     <main className="app-shell">
       <section className="app-panel">
@@ -127,6 +131,13 @@ function App() {
                       onClick={() => addToCart(item.product)}
                     >
                       +
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-danger"
+                      onClick={() => removeFromCart(item.product.id)}
+                    >
+                      Rimuovi
                     </button>
                   </div>
                 </li>
