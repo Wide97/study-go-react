@@ -47,8 +47,8 @@ Il frontend mostra:
 
 - [x] Backend Go inizializzato
 - [x] Backend: `GET /health`
-- [ ] Backend: dati finti ordini
-- [ ] Backend: `GET /orders`
+- [x] Backend: dati finti ordini
+- [x] Backend: `GET /orders`
 - [ ] Backend: filtro ricerca
 - [ ] Backend: filtro stato
 - [ ] Backend: paginazione

@@ -1,10 +1,36 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 )
+
+type Order struct {
+	ID       int     `json:"id"`
+	Customer string  `json:"customer"`
+	Status   string  `json:"status"`
+	Total    float64 `json:"total"`
+}
+
+type OrdersResponse struct {
+	Items []Order `json:"items"`
+	Total int     `json:"total"`
+}
+
+var orders = []Order{
+	{ID: 1, Customer: "Alice", Status: "pending", Total: 150.00},
+	{ID: 2, Customer: "Bob", Status: "shipped", Total: 200.00},
+	{ID: 3, Customer: "Charlie", Status: "delivered", Total: 300.00},
+	{ID: 4, Customer: "David", Status: "pending", Total: 120.00},
+	{ID: 5, Customer: "Eve", Status: "shipped", Total: 250.00},
+	{ID: 6, Customer: "Frank", Status: "delivered", Total: 400.00},
+	{ID: 7, Customer: "Grace", Status: "pending", Total: 180.00},
+	{ID: 8, Customer: "Heidi", Status: "shipped", Total: 220.00},
+	{ID: 9, Customer: "Ivan", Status: "delivered", Total: 350.00},
+	{ID: 10, Customer: "Judy", Status: "pending", Total: 100.00},
+}
 
 // frontendOrigin è l'origin del dev server Vite.
 // Origin = protocollo + host + porta. Quindi localhost:5173 e localhost:8080
@@ -15,6 +41,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /health", health)
+	mux.HandleFunc("GET /orders", ordersHandler)
 
 	log.Println("Server running on :8080")
 
@@ -31,6 +58,14 @@ func health(w http.ResponseWriter, r *http.Request) {
 	// ResponseWriter è "la penna" con cui scriviamo la risposta HTTP.
 	// Qui non impostiamo Content-Type perché è solo testo semplice.
 	fmt.Fprint(w, "Ok")
+}
+
+func ordersHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(OrdersResponse{
+		Items: orders,
+		Total: len(orders),
+	})
 }
 
 // withCORS permette al frontend Vite di chiamare endpoint HTTP del backend.
