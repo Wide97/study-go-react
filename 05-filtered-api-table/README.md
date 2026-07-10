@@ -46,13 +46,13 @@ Il frontend mostra:
 ## Stato: da iniziare
 
 - [x] Backend Go inizializzato
-- [ ] Backend: `GET /health`
+- [x] Backend: `GET /health`
 - [ ] Backend: dati finti ordini
 - [ ] Backend: `GET /orders`
 - [ ] Backend: filtro ricerca
 - [ ] Backend: filtro stato
 - [ ] Backend: paginazione
-- [ ] Backend: CORS per frontend Vite
+- [x] Backend: CORS per frontend Vite
 - [ ] Frontend React inizializzato
 - [ ] Frontend: fetch ordini
 - [ ] Frontend: tabella ordini
