@@ -121,6 +121,13 @@ function App() {
                     </button>
 
                     <strong>Quantità: {item.quantity}</strong>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-secondary"
+                      onClick={() => addToCart(item.product)}
+                    >
+                      +
+                    </button>
                   </div>
                 </li>
               ))}
