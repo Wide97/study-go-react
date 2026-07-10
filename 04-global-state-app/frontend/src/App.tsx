@@ -9,8 +9,8 @@ interface Product {
 
 interface ProductListProps {
   products: Product[];
-  onAddToCart: (product: Product) => void;
 }
+
 interface CartItem {
   product: Product;
   quantity: number;
@@ -27,7 +27,15 @@ interface CartContextValue {
 
 const CartContext = createContext<CartContextValue | null>(null);
 
-function ProductList({ products, onAddToCart }: ProductListProps) {
+function ProductList({ products }: ProductListProps) {
+  const cart = useContext(CartContext);
+
+  if (cart === null) {
+    return null;
+  }
+
+  const { addToCart } = cart;
+
   return (
     <ul className="list-group mt-3">
       {products.map((product) => (
@@ -42,7 +50,7 @@ function ProductList({ products, onAddToCart }: ProductListProps) {
             <button
               type="button"
               className="btn btn-sm btn-primary"
-              onClick={() => onAddToCart(product)}
+              onClick={() => addToCart(product)}
             >
               Aggiungi
             </button>
@@ -194,7 +202,7 @@ function App() {
           <p className="eyebrow">04 Global State App</p>
           <h1>Mini carrello</h1>
           <p className="status-text">Prodotti caricati: {products.length}</p>
-          <ProductList products={products} onAddToCart={addToCart} />
+          <ProductList products={products} />
           <p className="status-text">Articoli nel carrello: {totalQuantity}</p>
           <CartView />
         </section>

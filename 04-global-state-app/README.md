@@ -41,7 +41,7 @@ Il backend espone i dati iniziali e, per ora, non usa database.
 - [x] Backend: CORS per frontend Vite
 - [x] Frontend React inizializzato
 - [x] Frontend: lista prodotti
-- [ ] Frontend: Context per carrello
+- [x] Frontend: Context per carrello
 - [x] Frontend: aggiunta/rimozione/modifica quantità
 - [x] Frontend: totale carrello
 
