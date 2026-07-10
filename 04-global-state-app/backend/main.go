@@ -1,10 +1,28 @@
 package main
 
 import (
+	// encoding/json converte struct e slice Go in JSON.
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 )
+
+// Product rappresenta un prodotto disponibile nel catalogo.
+// I tag json controllano i nomi dei campi nella risposta HTTP.
+type Product struct {
+	ID    int     `json:"id"`
+	Name  string  `json:"name"`
+	Price float64 `json:"price"`
+}
+
+// products è uno storage in memoria.
+// Non c'è database: i dati sono fissi e vivono finché il server è acceso.
+var products = []Product{
+	{ID: 1, Name: "Keyboard", Price: 79.90},
+	{ID: 2, Name: "Mouse", Price: 39.90},
+	{ID: 3, Name: "Monitor", Price: 249.90},
+}
 
 // frontendOrigin è l'origin del dev server Vite.
 // Origin = protocollo + host + porta. Quindi localhost:5173 e localhost:8080
@@ -16,6 +34,8 @@ func main() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /health", health)
+
+	mux.HandleFunc("GET /products", productsHandler)
 
 	log.Println("Server running on :8080")
 
@@ -37,8 +57,7 @@ func health(w http.ResponseWriter, r *http.Request) {
 }
 
 // withCORS permette al frontend Vite di chiamare endpoint HTTP del backend.
-// Per WebSocket la parte davvero importante è CheckOrigin sull'upgrader sopra;
-// questo middleware copre invece richieste HTTP normali come /health o future API.
+// Serve perché frontend (:5173) e backend (:8080) hanno origin diversi.
 func withCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", frontendOrigin)
@@ -52,4 +71,10 @@ func withCORS(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+// productsHandler restituisce la lista prodotti in formato JSON.
+func productsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(products)
 }

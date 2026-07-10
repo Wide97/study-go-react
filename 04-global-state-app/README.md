@@ -37,7 +37,7 @@ Il backend espone i dati iniziali e, per ora, non usa database.
 
 - [x] Backend Go inizializzato
 - [x] Backend: `GET /health`
-- [ ] Backend: `GET /products`
+- [x] Backend: `GET /products`
 - [x] Backend: CORS per frontend Vite
 - [ ] Frontend React inizializzato
 - [ ] Frontend: lista prodotti
