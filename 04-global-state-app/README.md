@@ -43,7 +43,7 @@ Il backend espone i dati iniziali e, per ora, non usa database.
 - [x] Frontend: lista prodotti
 - [ ] Frontend: Context per carrello
 - [ ] Frontend: aggiunta/rimozione/modifica quantità
-- [ ] Frontend: totale carrello
+- [x] Frontend: totale carrello
 
 ## Metodo
 
