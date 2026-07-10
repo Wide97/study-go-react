@@ -39,7 +39,7 @@ Il backend espone i dati iniziali e, per ora, non usa database.
 - [x] Backend: `GET /health`
 - [x] Backend: `GET /products`
 - [x] Backend: CORS per frontend Vite
-- [ ] Frontend React inizializzato
+- [x] Frontend React inizializzato
 - [ ] Frontend: lista prodotti
 - [ ] Frontend: Context per carrello
 - [ ] Frontend: aggiunta/rimozione/modifica quantità
