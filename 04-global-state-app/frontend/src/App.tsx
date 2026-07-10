@@ -41,6 +41,10 @@ function App() {
     setCartItems([...cartItems, { product, quantity: 1 }]);
   }
 
+  const totalQuantity = cartItems.reduce((sum, item) => {
+    return sum + item.quantity;
+  }, 0);
+
   return (
     <main className="app-shell">
       <section className="app-panel">
@@ -68,7 +72,24 @@ function App() {
             </li>
           ))}
         </ul>
-        <p className="status-text">Articoli nel carrello: {cartItems.length}</p>
+        <p className="status-text">Articoli nel carrello: {totalQuantity}</p>
+        {cartItems.length > 0 && (
+          <>
+            <h2 className="mt-4">Carrello</h2>
+
+            <ul className="list-group mt-3">
+              {cartItems.map((item) => (
+                <li
+                  key={item.product.id}
+                  className="list-group-item d-flex justify-content-between"
+                >
+                  <span>{item.product.name}</span>
+                  <strong>Quantità: {item.quantity}</strong>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
       </section>
     </main>
   );
