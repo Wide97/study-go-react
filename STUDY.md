@@ -42,7 +42,7 @@ Focus su full-stack Go (backend) + React (frontend) per far lavorare insieme i d
 - [x] **Auth semplice (JWT)** — login/logout, rotte protette lato React (context o router guard), middleware di auth in Go. Concetti: Context API, protected routes, gestione token/refresh.
 - [x] **Dashboard realtime** — completato in `03-realtime-dashboard/` (Go WebSocket + React/TS). Concetti: WebSocket lato client, gestione stato che cambia in tempo reale.
 - [x] **App con stato globale complesso** — completato in `04-global-state-app/` (mini carrello full-stack con Go + React). Concetti: stato locale vs globale, Context API, provider, custom hook, derived state.
-- [ ] **API con paginazione/filtri/ricerca** — backend Go con query params, frontend con UI di filtro e tabella. Concetti: debounce, gestione query string, componenti tabella riutilizzabili.
+- [ ] **API con paginazione/filtri/ricerca** — iniziato in `05-filtered-api-table/`. Backend Go con query params, frontend con UI di filtro e tabella. Concetti: debounce, gestione query string, componenti tabella riutilizzabili.
 - [ ] **Testing** — aggiungere test a uno dei progetti precedenti: unit test Go (`testing` package) e test React (Testing Library). Concetti: mocking, test di componenti, test di handler HTTP.
 - [ ] **Deploy/containerizzazione** — Dockerfile per backend Go + frontend React, docker-compose per farli girare insieme. Concetti: multi-stage build, reverse proxy (nginx) per servire frontend + proxare API.
 
