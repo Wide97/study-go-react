@@ -7,15 +7,39 @@ interface Product {
   price: number;
 }
 
+interface CartItem {
+  product: Product;
+  quantity: number;
+}
+
 function App() {
   const [products, setProducts] = useState<Product[]>([]);
-
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   useEffect(() => {
     fetch("http://localhost:8080/products")
       .then((response) => response.json())
       .then((data: Product[]) => setProducts(data))
       .catch((error) => console.error("Errore caricamento prodotti:", error));
   }, []);
+
+  function addToCart(product: Product) {
+    const existingItem = cartItems.find(
+      (item) => item.product.id === product.id,
+    );
+
+    if (existingItem) {
+      setCartItems(
+        cartItems.map((item) =>
+          item.product.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item,
+        ),
+      );
+      return;
+    }
+
+    setCartItems([...cartItems, { product, quantity: 1 }]);
+  }
 
   return (
     <main className="app-shell">
@@ -27,13 +51,24 @@ function App() {
           {products.map((product) => (
             <li
               key={product.id}
-              className="list-group-item d-flex justify-content-between"
+              className="list-group-item d-flex justify-content-between align-items-center"
             >
               <span>{product.name}</span>
-              <strong>€ {product.price}</strong>
+
+              <div className="d-flex gap-2 align-items-center">
+                <strong>€ {product.price}</strong>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-primary"
+                  onClick={() => addToCart(product)}
+                >
+                  Aggiungi
+                </button>
+              </div>
             </li>
           ))}
         </ul>
+        <p className="status-text">Articoli nel carrello: {cartItems.length}</p>
       </section>
     </main>
   );
