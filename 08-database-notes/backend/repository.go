@@ -76,3 +76,56 @@ func createNote(db *sql.DB, req NoteRequest) (Note, error) {
 	}
 	return note, nil
 }
+
+func updateNote(db *sql.DB, id int, req NoteRequest) (Note, error) {
+	now := time.Now().Format(time.RFC3339)
+
+	// UPDATE modifica righe già esistenti.
+	// Exec restituisce un sql.Result: qui ci serve per sapere quante righe sono
+	// state davvero aggiornate.
+	result, err := db.Exec(`
+		UPDATE notes
+		SET title = ?, content = ?, updated_at = ?
+		WHERE id = ?
+	`, req.Title, req.Content, now, id)
+	if err != nil {
+		return Note{}, err
+	}
+
+	// RowsAffected dice quante righe sono state toccate dall'UPDATE.
+	// Se è 0, l'id richiesto non esiste: usiamo sql.ErrNoRows come errore
+	// standard per dire "risorsa non trovata".
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return Note{}, err
+	}
+	if affected == 0 {
+		return Note{}, sql.ErrNoRows
+	}
+
+	// Dopo l'UPDATE rileggiamo la nota dal database.
+	// Così restituiamo anche created_at corretto, invece di inventarlo o
+	// lasciarlo vuoto.
+	return getNoteByID(db, id)
+}
+
+func getNoteByID(db *sql.DB, id int) (Note, error) {
+	var note Note
+
+	err := db.QueryRow(`
+		SELECT id, title, content, created_at, updated_at
+		FROM notes
+		WHERE id = ?
+	`, id).Scan(
+		&note.ID,
+		&note.Title,
+		&note.Content,
+		&note.CreatedAt,
+		&note.UpdatedAt,
+	)
+	if err != nil {
+		return Note{}, err
+	}
+
+	return note, nil
+}

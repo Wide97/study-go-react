@@ -75,11 +75,11 @@ frontend/src/
 - [x] Backend: modello `Note`
 - [x] Backend: repository `ListNotes`
 - [x] Backend: repository `CreateNote`
-- [ ] Backend: repository `UpdateNote`
+- [x] Backend: repository `UpdateNote`
 - [ ] Backend: repository `DeleteNote`
 - [x] Backend: handler `GET /notes`
 - [x] Backend: handler `POST /notes`
-- [ ] Backend: handler `PUT /notes/{id}`
+- [x] Backend: handler `PUT /notes/{id}`
 - [ ] Backend: handler `DELETE /notes/{id}`
 - [ ] Backend: CORS
 - [x] Frontend React inizializzato
