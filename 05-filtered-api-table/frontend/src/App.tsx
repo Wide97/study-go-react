@@ -18,16 +18,19 @@ interface OrdersResponse {
 function App() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [total, setTotal] = useState(0);
-
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(5);
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
   useEffect(() => {
-    fetch("http://localhost:8080/orders")
+    fetch(`http://localhost:8080/orders?page=${page}&pageSize=${pageSize}`)
       .then((response) => response.json())
       .then((data: OrdersResponse) => {
         setOrders(data.items);
         setTotal(data.total);
       })
       .catch((error) => console.error("Errore caricamento ordini:", error));
-  }, []);
+  }, [page, pageSize]);
+
   return (
     <main className="app-shell">
       <section className="app-panel">
@@ -56,6 +59,28 @@ function App() {
             ))}
           </tbody>
         </table>
+        <div className="d-flex gap-2 mt-3">
+          <button
+            type="button"
+            className="btn btn-outline-secondary"
+            onClick={() => setPage(page - 1)}
+            disabled={page === 1}
+          >
+            Precedente
+          </button>
+
+          <span className="align-self-center">
+            Pagina {page} di {totalPages}
+          </span>
+          <button
+            type="button"
+            className="btn btn-outline-secondary"
+            onClick={() => setPage(page + 1)}
+            disabled={page >= totalPages}
+          >
+            Successiva
+          </button>
+        </div>
       </section>
     </main>
   );
