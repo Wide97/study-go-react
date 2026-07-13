@@ -49,8 +49,8 @@ Il frontend mostra:
 - [x] Backend: `GET /health`
 - [x] Backend: dati finti ordini
 - [x] Backend: `GET /orders`
-- [ ] Backend: filtro ricerca
-- [ ] Backend: filtro stato
+- [x] Backend: filtro ricerca
+- [x] Backend: filtro stato
 - [ ] Backend: paginazione
 - [x] Backend: CORS per frontend Vite
 - [ ] Frontend React inizializzato

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type Order struct {
@@ -62,9 +63,17 @@ func health(w http.ResponseWriter, r *http.Request) {
 
 func ordersHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+
+	status := r.URL.Query().Get("status")
+	search := r.URL.Query().Get("search")
+
+	filteredOrders := orders
+	filteredOrders = filterOrdersByStatus(filteredOrders, status)
+	filteredOrders = filterOrdersBySearch(filteredOrders, search)
+
 	json.NewEncoder(w).Encode(OrdersResponse{
-		Items: orders,
-		Total: len(orders),
+		Items: filteredOrders,
+		Total: len(filteredOrders),
 	})
 }
 
@@ -83,4 +92,38 @@ func withCORS(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+func filterOrdersByStatus(orders []Order, status string) []Order {
+	if status == "" {
+		return orders
+	}
+
+	var filtered []Order
+	for _, order := range orders {
+		if order.Status == status {
+			filtered = append(filtered, order)
+		}
+	}
+	return filtered
+}
+
+func filterOrdersBySearch(orders []Order, search string) []Order {
+	if search == "" {
+		return orders
+	}
+
+	var filtered []Order
+	for _, order := range orders {
+		if containsIgnoreCase(order.Customer, search) {
+			filtered = append(filtered, order)
+		}
+	}
+	return filtered
+}
+
+func containsIgnoreCase(str, substr string) bool {
+	str = strings.ToLower(str)
+	substr = strings.ToLower(substr)
+	return strings.Contains(str, substr)
 }
