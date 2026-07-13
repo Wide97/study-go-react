@@ -60,7 +60,7 @@ frontend/src/
 - [x] Backend: separare `data.go`
 - [x] Backend: separare `handlers.go`
 - [x] Backend: separare `filters.go`
-- [ ] Backend: separare `pagination.go`
+- [x] Backend: separare `pagination.go`
 - [ ] Backend: separare `cors.go`
 - [ ] Frontend: creare `types.ts`
 - [ ] Frontend: creare `api.ts`
