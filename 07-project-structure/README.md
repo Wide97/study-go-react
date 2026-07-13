@@ -67,7 +67,7 @@ frontend/src/
 - [x] Frontend: separare `OrdersFilters`
 - [x] Frontend: separare `OrdersTable`
 - [x] Frontend: separare `PaginationControls`
-- [ ] Verifica finale backend/frontend
+- [x] Verifica finale backend/frontend
 
 ## Metodo
 
