@@ -25,12 +25,13 @@ function App() {
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
   useEffect(() => {
     const params = new URLSearchParams({
       page: String(page),
       pageSize: String(pageSize),
-      search,
+      search: debouncedSearch,
       status,
     });
     setLoading(true);
@@ -53,7 +54,17 @@ function App() {
         setError("Errore caricamento ordini");
         setLoading(false);
       });
-  }, [page, pageSize, search, status]);
+  }, [page, pageSize, debouncedSearch, status]);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 400);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [search]);
 
   return (
     <main className="app-shell">
