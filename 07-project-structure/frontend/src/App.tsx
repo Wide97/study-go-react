@@ -1,13 +1,8 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-
 import { fetchOrders } from "./api";
-import type {
-  Order,
-  OrdersTableProps,
-  OrdersFiltersProps,
-  PaginationControlsProps,
-} from "./types";
+import type { Order, OrdersTableProps, PaginationControlsProps } from "./types";
+import { OrdersFilters } from "./components/OrdersFilters";
 
 function OrdersTable({ orders }: OrdersTableProps) {
   return (
@@ -41,38 +36,6 @@ function OrdersTable({ orders }: OrdersTableProps) {
         ))}
       </tbody>
     </table>
-  );
-}
-
-function OrdersFilters({
-  search,
-  status,
-  onSearchChange,
-  onStatusChange,
-}: OrdersFiltersProps) {
-  return (
-    <>
-      {/* Input controllato: value arriva dallo state, onChange aggiorna App. */}
-      <input
-        type="search"
-        className="form-control mt-3"
-        placeholder="Cerca cliente"
-        value={search}
-        onChange={(e) => onSearchChange(e.target.value)}
-      />
-
-      {/* Anche la select è controllata dallo state status. */}
-      <select
-        className="form-select mt-2"
-        value={status}
-        onChange={(e) => onStatusChange(e.target.value)}
-      >
-        <option value="">Tutti gli stati</option>
-        <option value="pending">Pending</option>
-        <option value="shipped">Shipped</option>
-        <option value="delivered">Delivered</option>
-      </select>
-    </>
   );
 }
 
