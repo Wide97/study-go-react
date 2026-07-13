@@ -73,7 +73,7 @@ frontend/src/
 - [x] Backend: collegare SQLite
 - [x] Backend: creare tabella `notes`
 - [x] Backend: modello `Note`
-- [ ] Backend: repository `ListNotes`
+- [x] Backend: repository `ListNotes`
 - [ ] Backend: repository `CreateNote`
 - [ ] Backend: repository `UpdateNote`
 - [ ] Backend: repository `DeleteNote`
