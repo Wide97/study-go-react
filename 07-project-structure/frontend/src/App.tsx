@@ -1,44 +1,10 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import { fetchOrders } from "./api";
-import type { Order, PaginationControlsProps } from "./types";
 import { OrdersFilters } from "./components/OrdersFilters";
 import { OrdersTable } from "./components/OrdersTable";
-
-function PaginationControls({
-  page,
-  totalPages,
-  onPrevious,
-  onNext,
-}: PaginationControlsProps) {
-  return (
-    <div className="d-flex gap-2 mt-3">
-      <button
-        type="button"
-        className="btn btn-outline-secondary"
-        onClick={onPrevious}
-        // Prima pagina: non ha senso andare indietro.
-        disabled={page === 1}
-      >
-        Precedente
-      </button>
-
-      <span className="align-self-center">
-        Pagina {page} di {totalPages}
-      </span>
-
-      <button
-        type="button"
-        className="btn btn-outline-secondary"
-        onClick={onNext}
-        // Ultima pagina: non ha senso andare avanti.
-        disabled={page >= totalPages}
-      >
-        Successiva
-      </button>
-    </div>
-  );
-}
+import { PaginationControls } from "./components/PaginationControls";
+import type { Order } from "./types";
 
 function App() {
   // orders contiene solo la pagina corrente ricevuta dal backend.

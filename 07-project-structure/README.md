@@ -66,7 +66,7 @@ frontend/src/
 - [x] Frontend: creare `api.ts`
 - [x] Frontend: separare `OrdersFilters`
 - [x] Frontend: separare `OrdersTable`
-- [ ] Frontend: separare `PaginationControls`
+- [x] Frontend: separare `PaginationControls`
 - [ ] Verifica finale backend/frontend
 
 ## Metodo
