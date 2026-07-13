@@ -23,17 +23,36 @@ function App() {
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch(
-      `http://localhost:8080/orders?page=${page}&pageSize=${pageSize}&search=${search}&status=${status}`,
-    )
-      .then((response) => response.json())
+    const params = new URLSearchParams({
+      page: String(page),
+      pageSize: String(pageSize),
+      search,
+      status,
+    });
+    setLoading(true);
+    setError("");
+    fetch(`http://localhost:8080/orders?${params.toString()}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Errore HTTP");
+        }
+
+        return response.json();
+      })
       .then((data: OrdersResponse) => {
         setOrders(data.items);
         setTotal(data.total);
+        setLoading(false);
       })
-      .catch((error) => console.error("Errore caricamento ordini:", error));
+      .catch((error) => {
+        console.error("Errore caricamento ordini:", error);
+        setError("Errore caricamento ordini");
+        setLoading(false);
+      });
   }, [page, pageSize, search, status]);
 
   return (
@@ -66,6 +85,9 @@ function App() {
           <option value="shipped">Shipped</option>
           <option value="delivered">Delivered</option>
         </select>
+        {loading && <div className="alert alert-info mt-3">Caricamento...</div>}
+
+        {error !== "" && <div className="alert alert-danger mt-3">{error}</div>}
         <table className="table table-sm mt-3">
           <thead>
             <tr>
