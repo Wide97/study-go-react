@@ -54,11 +54,11 @@ Il frontend mostra:
 - [x] Backend: paginazione
 - [x] Backend: CORS per frontend Vite
 - [x] Frontend React inizializzato
-- [ ] Frontend: fetch ordini
-- [ ] Frontend: tabella ordini
-- [ ] Frontend: filtri ricerca/stato
-- [ ] Frontend: paginazione
-- [ ] Frontend: debounce ricerca
+- [x] Frontend: fetch ordini
+- [x] Frontend: tabella ordini
+- [x] Frontend: filtri ricerca/stato
+- [x] Frontend: paginazione
+- [x] Frontend: debounce ricerca
 
 ## Metodo
 

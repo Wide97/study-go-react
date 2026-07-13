@@ -1,15 +1,25 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 
+// Order descrive un singolo ordine ricevuto dal backend.
+// Deve combaciare con i campi JSON restituiti da Go: id, customer, status, total.
 interface Order {
   id: number;
   customer: string;
   status: string;
   total: number;
 }
+
+// OrdersTable riceve solo gli ordini da mostrare.
+// Non sa nulla di fetch, filtri o paginazione: il suo compito è solo renderizzare
+// una tabella.
 interface OrdersTableProps {
   orders: Order[];
 }
+
+// OrdersResponse descrive la risposta completa di GET /orders.
+// items è la pagina corrente, total è il totale dopo i filtri, page/pageSize
+// descrivono la paginazione usata dal backend.
 interface OrdersResponse {
   items: Order[];
   total: number;
@@ -17,6 +27,8 @@ interface OrdersResponse {
   pageSize: number;
 }
 
+// OrdersFilters riceve valori e callback da App.
+// Gli input sono controllati: il valore visibile arriva dallo state React.
 interface OrdersFiltersProps {
   search: string;
   status: string;
@@ -24,6 +36,8 @@ interface OrdersFiltersProps {
   onStatusChange: (value: string) => void;
 }
 
+// PaginationControls non modifica direttamente lo state.
+// Espone solo eventi: App decide cosa fare quando l'utente clicca.
 interface PaginationControlsProps {
   page: number;
   totalPages: number;
@@ -44,6 +58,15 @@ function OrdersTable({ orders }: OrdersTableProps) {
       </thead>
 
       <tbody>
+        {orders.length === 0 && (
+          <tr>
+            <td colSpan={4} className="text-center text-muted">
+              Nessun ordine trovato
+            </td>
+          </tr>
+        )}
+
+        {/* map trasforma l'array di ordini in righe di tabella JSX. */}
         {orders.map((order) => (
           <tr key={order.id}>
             <td>{order.id}</td>
@@ -65,6 +88,7 @@ function OrdersFilters({
 }: OrdersFiltersProps) {
   return (
     <>
+      {/* Input controllato: value arriva dallo state, onChange aggiorna App. */}
       <input
         type="search"
         className="form-control mt-3"
@@ -73,6 +97,7 @@ function OrdersFilters({
         onChange={(e) => onSearchChange(e.target.value)}
       />
 
+      {/* Anche la select è controllata dallo state status. */}
       <select
         className="form-select mt-2"
         value={status}
@@ -99,6 +124,7 @@ function PaginationControls({
         type="button"
         className="btn btn-outline-secondary"
         onClick={onPrevious}
+        // Prima pagina: non ha senso andare indietro.
         disabled={page === 1}
       >
         Precedente
@@ -112,6 +138,7 @@ function PaginationControls({
         type="button"
         className="btn btn-outline-secondary"
         onClick={onNext}
+        // Ultima pagina: non ha senso andare avanti.
         disabled={page >= totalPages}
       >
         Successiva
@@ -121,28 +148,55 @@ function PaginationControls({
 }
 
 function App() {
+  // orders contiene solo la pagina corrente ricevuta dal backend.
   const [orders, setOrders] = useState<Order[]>([]);
+
+  // total è il totale dei risultati dopo filtri, prima della paginazione.
+  // Serve per calcolare quante pagine esistono.
   const [total, setTotal] = useState(0);
+
+  // page è la pagina richiesta al backend.
   const [page, setPage] = useState(1);
+
+  // Per ora pageSize è fisso: lo teniamo in state perché fa parte della query.
   const [pageSize] = useState(5);
+
+  // Derived state: non serve salvarlo con useState perché deriva da total/pageSize.
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+  // search è il valore immediato scritto nell'input.
   const [search, setSearch] = useState("");
+
+  // status è il filtro stato selezionato.
   const [status, setStatus] = useState("");
+
+  // loading/error rappresentano gli stati della richiesta HTTP.
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // debouncedSearch è il valore usato davvero nella fetch.
+  // Cambia solo dopo che l'utente smette di scrivere per 400ms.
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
+  // Questa useEffect carica gli ordini ogni volta che cambiano pagina,
+  // dimensione pagina, ricerca debounced o filtro stato.
   useEffect(() => {
+    // URLSearchParams costruisce la query string in modo sicuro:
+    // converte spazi e caratteri speciali senza dover concatenare stringhe a mano.
     const params = new URLSearchParams({
       page: String(page),
       pageSize: String(pageSize),
       search: debouncedSearch,
       status,
     });
+
     setLoading(true);
     setError("");
+
     fetch(`http://localhost:8080/orders?${params.toString()}`)
       .then((response) => {
+        // fetch entra nel catch solo per errori di rete.
+        // Con response.ok gestiamo anche risposte HTTP come 404 o 500.
         if (!response.ok) {
           throw new Error("Errore HTTP");
         }
@@ -161,6 +215,9 @@ function App() {
       });
   }, [page, pageSize, debouncedSearch, status]);
 
+  // Questa useEffect implementa il debounce della ricerca.
+  // Ogni volta che search cambia, parte un timer. Se l'utente scrive ancora,
+  // il cleanup cancella il timer precedente.
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       setDebouncedSearch(search);
@@ -172,11 +229,14 @@ function App() {
   }, [search]);
 
   function handleSearchChange(value: string) {
+    // Cambiando filtro torniamo alla prima pagina: la pagina corrente potrebbe
+    // non esistere più con i nuovi risultati.
     setSearch(value);
     setPage(1);
   }
 
   function handleStatusChange(value: string) {
+    // Stessa logica della ricerca: nuovo filtro, si riparte da pagina 1.
     setStatus(value);
     setPage(1);
   }
