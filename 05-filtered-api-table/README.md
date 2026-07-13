@@ -53,7 +53,7 @@ Il frontend mostra:
 - [x] Backend: filtro stato
 - [x] Backend: paginazione
 - [x] Backend: CORS per frontend Vite
-- [ ] Frontend React inizializzato
+- [x] Frontend React inizializzato
 - [ ] Frontend: fetch ordini
 - [ ] Frontend: tabella ordini
 - [ ] Frontend: filtri ricerca/stato
