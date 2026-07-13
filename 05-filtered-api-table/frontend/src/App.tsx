@@ -7,12 +7,77 @@ interface Order {
   status: string;
   total: number;
 }
-
+interface OrdersTableProps {
+  orders: Order[];
+}
 interface OrdersResponse {
   items: Order[];
   total: number;
   page: number;
   pageSize: number;
+}
+
+interface OrdersFiltersProps {
+  search: string;
+  status: string;
+  onSearchChange: (value: string) => void;
+  onStatusChange: (value: string) => void;
+}
+
+function OrdersTable({ orders }: OrdersTableProps) {
+  return (
+    <table className="table table-sm mt-3">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Cliente</th>
+          <th>Stato</th>
+          <th>Totale</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {orders.map((order) => (
+          <tr key={order.id}>
+            <td>{order.id}</td>
+            <td>{order.customer}</td>
+            <td>{order.status}</td>
+            <td>€ {order.total.toFixed(2)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+function OrdersFilters({
+  search,
+  status,
+  onSearchChange,
+  onStatusChange,
+}: OrdersFiltersProps) {
+  return (
+    <>
+      <input
+        type="search"
+        className="form-control mt-3"
+        placeholder="Cerca cliente"
+        value={search}
+        onChange={(e) => onSearchChange(e.target.value)}
+      />
+
+      <select
+        className="form-select mt-2"
+        value={status}
+        onChange={(e) => onStatusChange(e.target.value)}
+      >
+        <option value="">Tutti gli stati</option>
+        <option value="pending">Pending</option>
+        <option value="shipped">Shipped</option>
+        <option value="delivered">Delivered</option>
+      </select>
+    </>
+  );
 }
 
 function App() {
@@ -66,6 +131,16 @@ function App() {
     };
   }, [search]);
 
+  function handleSearchChange(value: string) {
+    setSearch(value);
+    setPage(1);
+  }
+
+  function handleStatusChange(value: string) {
+    setStatus(value);
+    setPage(1);
+  }
+
   return (
     <main className="app-shell">
       <section className="app-panel">
@@ -73,53 +148,18 @@ function App() {
         <h1>Ordini</h1>
         <p className="status-text">Ordini caricati: {orders.length}</p>
         <p className="status-text">Totale risultati: {total}</p>
-        <input
-          type="search"
-          className="form-control mt-3"
-          placeholder="Cerca cliente"
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
+        <OrdersFilters
+          search={search}
+          status={status}
+          onSearchChange={handleSearchChange}
+          onStatusChange={handleStatusChange}
         />
-        <select
-          className="form-select mt-2"
-          value={status}
-          onChange={(e) => {
-            setStatus(e.target.value);
-            setPage(1);
-          }}
-        >
-          <option value="">Tutti gli stati</option>
-          <option value="pending">Pending</option>
-          <option value="shipped">Shipped</option>
-          <option value="delivered">Delivered</option>
-        </select>
         {loading && <div className="alert alert-info mt-3">Caricamento...</div>}
 
         {error !== "" && <div className="alert alert-danger mt-3">{error}</div>}
-        <table className="table table-sm mt-3">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Cliente</th>
-              <th>Stato</th>
-              <th>Totale</th>
-            </tr>
-          </thead>
 
-          <tbody>
-            {orders.map((order) => (
-              <tr key={order.id}>
-                <td>{order.id}</td>
-                <td>{order.customer}</td>
-                <td>{order.status}</td>
-                <td>€ {order.total.toFixed(2)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <OrdersTable orders={orders} />
+
         <div className="d-flex gap-2 mt-3">
           <button
             type="button"
