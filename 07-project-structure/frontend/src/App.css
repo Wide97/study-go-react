@@ -1,0 +1,33 @@
+.app-shell {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.app-panel {
+  width: min(100%, 520px);
+  padding: 32px;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: #6c757d;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.app-panel h1 {
+  margin: 0;
+  font-size: 32px;
+  line-height: 1.2;
+}
+
+.status-text {
+  margin: 16px 0 0;
+  color: #6c757d;
+}
