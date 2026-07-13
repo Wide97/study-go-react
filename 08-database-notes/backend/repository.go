@@ -53,7 +53,14 @@ func listNotes(db *sql.DB) ([]Note, error) {
 }
 
 func createNote(db *sql.DB, req NoteRequest) (Note, error) {
+	// Salviamo le date come stringhe RFC3339.
+	// È un formato standard leggibile e ordinabile, ad esempio:
+	// 2026-07-13T10:30:00+02:00
 	now := time.Now().Format(time.RFC3339)
+
+	// INSERT crea una nuova riga nella tabella.
+	// I punti interrogativi sono placeholder: i valori veri vengono passati
+	// dopo la query. Questo evita di costruire SQL concatenando stringhe.
 	result, err := db.Exec(`
 		INSERT INTO notes (title, content, created_at, updated_at)
 		VALUES (?, ?, ?, ?)
@@ -62,6 +69,8 @@ func createNote(db *sql.DB, req NoteRequest) (Note, error) {
 		return Note{}, err
 	}
 
+	// LastInsertId restituisce l'id generato da SQLite per la nuova riga.
+	// Ci serve per costruire la Note da rimandare al client.
 	id, err := result.LastInsertId()
 	if err != nil {
 		return Note{}, err
@@ -77,6 +86,10 @@ func createNote(db *sql.DB, req NoteRequest) (Note, error) {
 	return note, nil
 }
 
+// updateNote modifica una nota esistente.
+//
+// Qui siamo nello strato repository: niente HTTP, niente JSON, niente status
+// code. Questa funzione riceve dati Go, esegue SQL e restituisce dati Go.
 func updateNote(db *sql.DB, id int, req NoteRequest) (Note, error) {
 	now := time.Now().Format(time.RFC3339)
 
@@ -109,9 +122,15 @@ func updateNote(db *sql.DB, id int, req NoteRequest) (Note, error) {
 	return getNoteByID(db, id)
 }
 
+// getNoteByID legge una singola nota tramite id.
+//
+// QueryRow si usa quando ci aspettiamo al massimo una riga.
+// A differenza di Query, non dobbiamo fare un ciclo rows.Next().
 func getNoteByID(db *sql.DB, id int) (Note, error) {
 	var note Note
 
+	// Scan su QueryRow esegue davvero la lettura.
+	// Se non trova nessuna riga, restituisce sql.ErrNoRows.
 	err := db.QueryRow(`
 		SELECT id, title, content, created_at, updated_at
 		FROM notes
