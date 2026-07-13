@@ -63,7 +63,7 @@ frontend/src/
 - [x] Backend: separare `pagination.go`
 - [x] Backend: separare `cors.go`
 - [x] Frontend: creare `types.ts`
-- [ ] Frontend: creare `api.ts`
+- [x] Frontend: creare `api.ts`
 - [ ] Frontend: separare `OrdersFilters`
 - [ ] Frontend: separare `OrdersTable`
 - [ ] Frontend: separare `PaginationControls`

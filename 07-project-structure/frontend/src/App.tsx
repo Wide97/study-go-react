@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 
+import { fetchOrders } from "./api";
 import type {
   Order,
   OrdersTableProps,
   OrdersFiltersProps,
   PaginationControlsProps,
-  OrdersResponse,
 } from "./types";
 
 function OrdersTable({ orders }: OrdersTableProps) {
@@ -145,29 +145,16 @@ function App() {
   // Questa useEffect carica gli ordini ogni volta che cambiano pagina,
   // dimensione pagina, ricerca debounced o filtro stato.
   useEffect(() => {
-    // URLSearchParams costruisce la query string in modo sicuro:
-    // converte spazi e caratteri speciali senza dover concatenare stringhe a mano.
-    const params = new URLSearchParams({
-      page: String(page),
-      pageSize: String(pageSize),
-      search: debouncedSearch,
-      status,
-    });
-
     setLoading(true);
     setError("");
 
-    fetch(`http://localhost:8080/orders?${params.toString()}`)
-      .then((response) => {
-        // fetch entra nel catch solo per errori di rete.
-        // Con response.ok gestiamo anche risposte HTTP come 404 o 500.
-        if (!response.ok) {
-          throw new Error("Errore HTTP");
-        }
-
-        return response.json();
-      })
-      .then((data: OrdersResponse) => {
+    fetchOrders({
+      page,
+      pageSize,
+      search: debouncedSearch,
+      status,
+    })
+      .then((data) => {
         setOrders(data.items);
         setTotal(data.total);
         setLoading(false);
