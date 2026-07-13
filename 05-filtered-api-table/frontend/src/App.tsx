@@ -24,6 +24,13 @@ interface OrdersFiltersProps {
   onStatusChange: (value: string) => void;
 }
 
+interface PaginationControlsProps {
+  page: number;
+  totalPages: number;
+  onPrevious: () => void;
+  onNext: () => void;
+}
+
 function OrdersTable({ orders }: OrdersTableProps) {
   return (
     <table className="table table-sm mt-3">
@@ -77,6 +84,39 @@ function OrdersFilters({
         <option value="delivered">Delivered</option>
       </select>
     </>
+  );
+}
+
+function PaginationControls({
+  page,
+  totalPages,
+  onPrevious,
+  onNext,
+}: PaginationControlsProps) {
+  return (
+    <div className="d-flex gap-2 mt-3">
+      <button
+        type="button"
+        className="btn btn-outline-secondary"
+        onClick={onPrevious}
+        disabled={page === 1}
+      >
+        Precedente
+      </button>
+
+      <span className="align-self-center">
+        Pagina {page} di {totalPages}
+      </span>
+
+      <button
+        type="button"
+        className="btn btn-outline-secondary"
+        onClick={onNext}
+        disabled={page >= totalPages}
+      >
+        Successiva
+      </button>
+    </div>
   );
 }
 
@@ -141,6 +181,14 @@ function App() {
     setPage(1);
   }
 
+  function goToPreviousPage() {
+    setPage(page - 1);
+  }
+
+  function goToNextPage() {
+    setPage(page + 1);
+  }
+
   return (
     <main className="app-shell">
       <section className="app-panel">
@@ -160,28 +208,12 @@ function App() {
 
         <OrdersTable orders={orders} />
 
-        <div className="d-flex gap-2 mt-3">
-          <button
-            type="button"
-            className="btn btn-outline-secondary"
-            onClick={() => setPage(page - 1)}
-            disabled={page === 1}
-          >
-            Precedente
-          </button>
-
-          <span className="align-self-center">
-            Pagina {page} di {totalPages}
-          </span>
-          <button
-            type="button"
-            className="btn btn-outline-secondary"
-            onClick={() => setPage(page + 1)}
-            disabled={page >= totalPages}
-          >
-            Successiva
-          </button>
-        </div>
+        <PaginationControls
+          page={page}
+          totalPages={totalPages}
+          onPrevious={goToPreviousPage}
+          onNext={goToNextPage}
+        />
       </section>
     </main>
   );
