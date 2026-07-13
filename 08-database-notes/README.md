@@ -78,7 +78,7 @@ frontend/src/
 - [ ] Backend: repository `UpdateNote`
 - [ ] Backend: repository `DeleteNote`
 - [x] Backend: handler `GET /notes`
-- [ ] Backend: handler `POST /notes`
+- [x] Backend: handler `POST /notes`
 - [ ] Backend: handler `PUT /notes/{id}`
 - [ ] Backend: handler `DELETE /notes/{id}`
 - [ ] Backend: CORS
