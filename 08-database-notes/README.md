@@ -72,7 +72,7 @@ frontend/src/
 - [x] Backend: `GET /health`
 - [x] Backend: collegare SQLite
 - [x] Backend: creare tabella `notes`
-- [ ] Backend: modello `Note`
+- [x] Backend: modello `Note`
 - [ ] Backend: repository `ListNotes`
 - [ ] Backend: repository `CreateNote`
 - [ ] Backend: repository `UpdateNote`
