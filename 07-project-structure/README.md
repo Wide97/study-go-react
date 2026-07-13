@@ -57,7 +57,7 @@ frontend/src/
 
 - [x] Base copiata dal progetto `05-filtered-api-table`
 - [x] Backend: separare `models.go`
-- [ ] Backend: separare `data.go`
+- [x] Backend: separare `data.go`
 - [ ] Backend: separare `handlers.go`
 - [ ] Backend: separare `filters.go`
 - [ ] Backend: separare `pagination.go`
