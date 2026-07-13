@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -16,8 +17,10 @@ type Order struct {
 }
 
 type OrdersResponse struct {
-	Items []Order `json:"items"`
-	Total int     `json:"total"`
+	Items    []Order `json:"items"`
+	Total    int     `json:"total"`
+	Page     int     `json:"page"`
+	PageSize int     `json:"pageSize"`
 }
 
 var orders = []Order{
@@ -66,14 +69,21 @@ func ordersHandler(w http.ResponseWriter, r *http.Request) {
 
 	status := r.URL.Query().Get("status")
 	search := r.URL.Query().Get("search")
+	page := getIntQueryParam(r, "page", 1)
+	pageSize := getIntQueryParam(r, "pageSize", 5)
 
 	filteredOrders := orders
 	filteredOrders = filterOrdersByStatus(filteredOrders, status)
 	filteredOrders = filterOrdersBySearch(filteredOrders, search)
 
+	total := len(filteredOrders)
+	paginatedOrders := paginateOrders(filteredOrders, page, pageSize)
+
 	json.NewEncoder(w).Encode(OrdersResponse{
-		Items: filteredOrders,
-		Total: len(filteredOrders),
+		Items:    paginatedOrders,
+		Total:    total,
+		Page:     page,
+		PageSize: pageSize,
 	})
 }
 
@@ -126,4 +136,34 @@ func containsIgnoreCase(str, substr string) bool {
 	str = strings.ToLower(str)
 	substr = strings.ToLower(substr)
 	return strings.Contains(str, substr)
+}
+
+func getIntQueryParam(r *http.Request, name string, defaultValue int) int {
+	value := r.URL.Query().Get(name)
+
+	if value == "" {
+		return defaultValue
+	}
+
+	number, err := strconv.Atoi(value)
+	if err != nil || number <= 0 {
+		return defaultValue
+	}
+
+	return number
+}
+
+func paginateOrders(orders []Order, page int, pageSize int) []Order {
+	start := (page - 1) * pageSize
+	end := start + pageSize
+
+	if start >= len(orders) {
+		return []Order{}
+	}
+
+	if end > len(orders) {
+		end = len(orders)
+	}
+
+	return orders[start:end]
 }

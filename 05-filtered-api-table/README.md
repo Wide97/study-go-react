@@ -51,7 +51,7 @@ Il frontend mostra:
 - [x] Backend: `GET /orders`
 - [x] Backend: filtro ricerca
 - [x] Backend: filtro stato
-- [ ] Backend: paginazione
+- [x] Backend: paginazione
 - [x] Backend: CORS per frontend Vite
 - [ ] Frontend React inizializzato
 - [ ] Frontend: fetch ordini
