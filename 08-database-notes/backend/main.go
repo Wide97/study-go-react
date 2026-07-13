@@ -7,6 +7,12 @@ import (
 )
 
 func main() {
+
+	db, err := openDatabase()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /health", health)

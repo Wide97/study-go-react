@@ -70,8 +70,8 @@ frontend/src/
 - [x] Scheletro progetto creato
 - [x] Backend Go inizializzato
 - [x] Backend: `GET /health`
-- [ ] Backend: collegare SQLite
-- [ ] Backend: creare tabella `notes`
+- [x] Backend: collegare SQLite
+- [x] Backend: creare tabella `notes`
 - [ ] Backend: modello `Note`
 - [ ] Backend: repository `ListNotes`
 - [ ] Backend: repository `CreateNote`
