@@ -74,7 +74,7 @@ frontend/src/
 - [x] Backend: creare tabella `notes`
 - [x] Backend: modello `Note`
 - [x] Backend: repository `ListNotes`
-- [ ] Backend: repository `CreateNote`
+- [x] Backend: repository `CreateNote`
 - [ ] Backend: repository `UpdateNote`
 - [ ] Backend: repository `DeleteNote`
 - [x] Backend: handler `GET /notes`

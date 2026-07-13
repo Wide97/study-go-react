@@ -1,6 +1,9 @@
 package main
 
-import "database/sql"
+import (
+	"database/sql"
+	"time"
+)
 
 // listNotes legge tutte le note dal database.
 //
@@ -47,4 +50,29 @@ func listNotes(db *sql.DB) ([]Note, error) {
 	}
 
 	return notes, nil
+}
+
+func createNote(db *sql.DB, req NoteRequest) (Note, error) {
+	now := time.Now().Format(time.RFC3339)
+	result, err := db.Exec(`
+		INSERT INTO notes (title, content, created_at, updated_at)
+		VALUES (?, ?, ?, ?)
+	`, req.Title, req.Content, now, now)
+	if err != nil {
+		return Note{}, err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return Note{}, err
+	}
+
+	note := Note{
+		ID:        int(id),
+		Title:     req.Title,
+		Content:   req.Content,
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+	return note, nil
 }
