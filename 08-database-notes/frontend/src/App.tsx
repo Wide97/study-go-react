@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import { fetchNotes, createNote } from "./api";
+import { fetchNotes, createNote, deleteNote } from "./api";
 import type { Note, NoteRequest } from "./types";
 import { NotesList } from "./components/NotesList";
 import { NoteForm } from "./components/NoteForm";
@@ -19,6 +19,18 @@ function App() {
     } catch (error) {
       console.error("Errore creazione nota:", error);
       setError("Errore creazione nota");
+    }
+  }
+
+  async function handleDeleteNote(id: number) {
+    setError("");
+
+    try {
+      await deleteNote(id);
+      setNotes(notes.filter((note) => note.id !== id));
+    } catch (error) {
+      console.error("Errore eliminazione nota:", error);
+      setError("Errore eliminazione nota");
     }
   }
 
@@ -44,14 +56,10 @@ function App() {
         <p className="eyebrow">08 Database Notes</p>
         <h1>Note</h1>
         <p className="status-text">Note caricate: {notes.length}</p>
-
         {loading && <div className="alert alert-info mt-3">Caricamento...</div>}
-
         {error !== "" && <div className="alert alert-danger mt-3">{error}</div>}
-
         <NoteForm onSubmit={handleCreateNote} />
-
-        <NotesList notes={notes} />
+        <NotesList notes={notes} onDelete={handleDeleteNote} />
       </section>
     </main>
   );

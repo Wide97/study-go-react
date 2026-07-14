@@ -27,3 +27,13 @@ const API_BASE_URL = "http://localhost:8080";
 
     return response.json();
   }
+
+    export async function deleteNote(id: number): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/notes/${id}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to delete note");
+    }
+  }

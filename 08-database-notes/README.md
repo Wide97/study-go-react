@@ -88,7 +88,7 @@ frontend/src/
 - [x] Frontend: fetch note
 - [x] Frontend: form creazione
 - [x] Frontend: lista note
-- [ ] Frontend: delete nota
+- [x] Frontend: delete nota
 - [ ] Frontend: edit nota
 
 ## Metodo
