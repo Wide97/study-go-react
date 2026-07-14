@@ -83,11 +83,11 @@ frontend/src/
 - [x] Backend: handler `DELETE /notes/{id}`
 - [x] Backend: CORS
 - [x] Frontend React inizializzato
-- [ ] Frontend: types
-- [ ] Frontend: api client
-- [ ] Frontend: fetch note
+- [x] Frontend: types
+- [x] Frontend: api client
+- [x] Frontend: fetch note
 - [ ] Frontend: form creazione
-- [ ] Frontend: lista note
+- [x] Frontend: lista note
 - [ ] Frontend: delete nota
 - [ ] Frontend: edit nota
 
