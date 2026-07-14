@@ -1,24 +1,39 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import { fetchNotes, createNote, deleteNote } from "./api";
+import { createNote, deleteNote, fetchNotes, updateNote } from "./api";
 import type { Note, NoteRequest } from "./types";
-import { NotesList } from "./components/NotesList";
 import { NoteForm } from "./components/NoteForm";
+import { NotesList } from "./components/NotesList";
 
 function App() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [editingNote, setEditingNote] = useState<Note | null>(null);
 
-  async function handleCreateNote(payload: NoteRequest) {
+  // Un solo submit gestisce due casi:
+  // - se editingNote è null, creiamo una nuova nota;
+  // - se editingNote contiene una nota, aggiorniamo quella nota.
+  async function handleSaveNote(payload: NoteRequest) {
     setError("");
 
     try {
-      const createdNote = await createNote(payload);
-      setNotes([createdNote, ...notes]);
+      if (editingNote === null) {
+        const createdNote = await createNote(payload);
+        setNotes((currentNotes) => [createdNote, ...currentNotes]);
+        return;
+      }
+
+      const updatedNote = await updateNote(editingNote.id, payload);
+      setNotes((currentNotes) =>
+        currentNotes.map((note) =>
+          note.id === updatedNote.id ? updatedNote : note,
+        ),
+      );
+      setEditingNote(null);
     } catch (error) {
-      console.error("Errore creazione nota:", error);
-      setError("Errore creazione nota");
+      console.error("Errore salvataggio nota:", error);
+      setError("Errore salvataggio nota");
     }
   }
 
@@ -27,7 +42,14 @@ function App() {
 
     try {
       await deleteNote(id);
-      setNotes(notes.filter((note) => note.id !== id));
+      setNotes((currentNotes) =>
+        currentNotes.filter((note) => note.id !== id),
+      );
+
+      // Se sto modificando proprio la nota eliminata, esco dalla modalità edit.
+      if (editingNote?.id === id) {
+        setEditingNote(null);
+      }
     } catch (error) {
       console.error("Errore eliminazione nota:", error);
       setError("Errore eliminazione nota");
@@ -56,10 +78,29 @@ function App() {
         <p className="eyebrow">08 Database Notes</p>
         <h1>Note</h1>
         <p className="status-text">Note caricate: {notes.length}</p>
+
         {loading && <div className="alert alert-info mt-3">Caricamento...</div>}
         {error !== "" && <div className="alert alert-danger mt-3">{error}</div>}
-        <NoteForm onSubmit={handleCreateNote} />
-        <NotesList notes={notes} onDelete={handleDeleteNote} />
+
+        <NoteForm
+          initialValues={
+            editingNote === null
+              ? undefined
+              : {
+                  title: editingNote.title,
+                  content: editingNote.content,
+                }
+          }
+          submitLabel={editingNote === null ? "Crea nota" : "Salva modifica"}
+          onCancel={editingNote === null ? undefined : () => setEditingNote(null)}
+          onSubmit={handleSaveNote}
+        />
+
+        <NotesList
+          notes={notes}
+          onEdit={setEditingNote}
+          onDelete={handleDeleteNote}
+        />
       </section>
     </main>
   );

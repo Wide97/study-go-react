@@ -89,7 +89,7 @@ frontend/src/
 - [x] Frontend: form creazione
 - [x] Frontend: lista note
 - [x] Frontend: delete nota
-- [ ] Frontend: edit nota
+- [x] Frontend: edit nota
 
 ## Metodo
 

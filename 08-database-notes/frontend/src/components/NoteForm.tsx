@@ -1,13 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { NoteRequest } from "../types";
 
 interface NoteFormProps {
+  initialValues?: NoteRequest;
+  submitLabel: string;
+  onCancel?: () => void;
   onSubmit: (payload: NoteRequest) => void;
 }
 
-export function NoteForm({ onSubmit }: NoteFormProps) {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+export function NoteForm({
+  initialValues,
+  submitLabel,
+  onCancel,
+  onSubmit,
+}: NoteFormProps) {
+  const [title, setTitle] = useState(initialValues?.title ?? "");
+  const [content, setContent] = useState(initialValues?.content ?? "");
+
+  // useState usa initialValues solo al primo render.
+  // Quando l'utente sceglie un'altra nota da modificare, initialValues cambia:
+  // questo effect sincronizza i campi del form con la nota selezionata.
+  useEffect(() => {
+    setTitle(initialValues?.title ?? "");
+    setContent(initialValues?.content ?? "");
+  }, [initialValues]);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -17,8 +33,12 @@ export function NoteForm({ onSubmit }: NoteFormProps) {
       content,
     });
 
-    setTitle("");
-    setContent("");
+    // Dopo una creazione svuotiamo il form.
+    // In modifica, invece, App azzera editingNote e l'effect sopra pulisce i campi.
+    if (initialValues === undefined) {
+      setTitle("");
+      setContent("");
+    }
   }
 
   return (
@@ -47,9 +67,21 @@ export function NoteForm({ onSubmit }: NoteFormProps) {
         />
       </div>
 
-      <button type="submit" className="btn btn-primary">
-        Crea nota
-      </button>
+      <div className="d-flex gap-2">
+        <button type="submit" className="btn btn-primary">
+          {submitLabel}
+        </button>
+
+        {onCancel !== undefined && (
+          <button
+            type="button"
+            className="btn btn-outline-secondary"
+            onClick={onCancel}
+          >
+            Annulla
+          </button>
+        )}
+      </div>
     </form>
   );
 }
