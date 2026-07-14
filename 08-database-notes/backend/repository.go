@@ -148,3 +148,28 @@ func getNoteByID(db *sql.DB, id int) (Note, error) {
 
 	return note, nil
 }
+
+// deleteNote cancella una nota esistente dal database.
+//
+// Come updateNote, usa Exec perché DELETE non restituisce righe da leggere.
+// Il valore importante è RowsAffected: ci dice se l'id esisteva davvero.
+func deleteNote(db *sql.DB, id int) error {
+	result, err := db.Exec(`
+		DELETE FROM notes
+		WHERE id = ?
+	`, id)
+	if err != nil {
+		return err
+	}
+
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if affected == 0 {
+		return sql.ErrNoRows
+	}
+
+	return nil
+}
