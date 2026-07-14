@@ -111,6 +111,35 @@ func updateNoteHandler(db *sql.DB) http.HandlerFunc {
 	}
 }
 
+// deleteNoteHandler gestisce DELETE /notes/{id}.
+//
+// A differenza di POST e PUT non legge un body JSON:
+// per cancellare una nota basta sapere quale id cancellare.
+func deleteNoteHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.Atoi(r.PathValue("id"))
+		if err != nil || id <= 0 {
+			http.Error(w, "Invalid note id", http.StatusBadRequest)
+			return
+		}
+
+		err = deleteNote(db, id)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				http.Error(w, "Note not found", http.StatusNotFound)
+				return
+			}
+
+			http.Error(w, "Failed to delete note", http.StatusInternalServerError)
+			return
+		}
+
+		// 204 No Content significa: operazione riuscita, ma non c'è un JSON
+		// da restituire. Per DELETE è una risposta molto comune.
+		w.WriteHeader(http.StatusNoContent)
+	}
+}
+
 // health è l'endpoint minimo per verificare che il backend sia acceso.
 // Prima di collegare il database, ci serve una base HTTP funzionante.
 func health(w http.ResponseWriter, r *http.Request) {

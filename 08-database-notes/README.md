@@ -80,8 +80,8 @@ frontend/src/
 - [x] Backend: handler `GET /notes`
 - [x] Backend: handler `POST /notes`
 - [x] Backend: handler `PUT /notes/{id}`
-- [ ] Backend: handler `DELETE /notes/{id}`
-- [ ] Backend: CORS
+- [x] Backend: handler `DELETE /notes/{id}`
+- [x] Backend: CORS
 - [x] Frontend React inizializzato
 - [ ] Frontend: types
 - [ ] Frontend: api client
