@@ -86,7 +86,7 @@ frontend/src/
 - [x] Frontend: types
 - [x] Frontend: api client
 - [x] Frontend: fetch note
-- [ ] Frontend: form creazione
+- [x] Frontend: form creazione
 - [x] Frontend: lista note
 - [ ] Frontend: delete nota
 - [ ] Frontend: edit nota
