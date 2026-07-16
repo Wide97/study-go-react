@@ -69,8 +69,8 @@ docker compose     -> avvia tutto insieme
 - [x] Backend: `GET /health`
 - [x] Backend: Dockerfile
 - [ ] Backend: build immagine
-- [ ] Frontend React inizializzato
-- [ ] Frontend: chiamata API backend
+- [x] Frontend React inizializzato
+- [x] Frontend: chiamata API backend
 - [ ] Frontend: Dockerfile
 - [ ] Frontend: nginx config
 - [ ] Frontend: build immagine
