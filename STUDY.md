@@ -46,6 +46,6 @@ Focus su full-stack Go (backend) + React (frontend) per far lavorare insieme i d
 - [x] **Testing** — completato in `06-testing/`: unit test Go (`testing` package) e test React con Vitest/Testing Library. Concetti: mocking, test di componenti, test di handler HTTP.
 - [x] **Strutturazione progetto multi-file** — completato in `07-project-structure/`: preso un progetto già fatto e separato `main.go` in file dedicati e `App.tsx` in componenti/file reali. Concetti: separazione responsabilità, props tra componenti, import/export, package Go, handler/service/model, organizzazione cartelle.
 - [x] **Persistenza con database** — completato in `08-database-notes/`: mini app note full-stack con Go, React e SQLite. Concetti: `database/sql`, driver SQLite, connessione DB, `SELECT/INSERT/UPDATE/DELETE`, gestione errori, repository layer, CRUD frontend, form controllati, sincronizzazione stato/backend.
-- [ ] **Deploy/containerizzazione** — Dockerfile per backend Go + frontend React, docker-compose per farli girare insieme. Concetti: multi-stage build, reverse proxy (nginx) per servire frontend + proxare API.
+- [x] **Deploy/containerizzazione** — completato in `09-deploy-containerization/`: Dockerfile per backend Go + frontend React, Docker Compose e verifica runtime. Concetti: multi-stage build, reverse proxy nginx per servire frontend e inoltrare API, rete tra servizi e build riproducibile con `npm ci`.
 
 Nuove idee si possono aggiungere liberamente man mano che vengono in mente, semplicemente spuntando/aggiungendo righe qui sopra.

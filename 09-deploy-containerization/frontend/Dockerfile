@@ -4,10 +4,11 @@ FROM node:24-alpine AS builder
 
 WORKDIR /app
 
-# Copiare prima package.json permette a Docker di riusare la cache delle
-# dipendenze quando cambiano solo i file sorgenti.
-COPY package.json ./
-RUN npm install
+# Copiare prima i manifest permette a Docker di riusare la cache delle
+# dipendenze quando cambiano solo i file sorgenti. npm ci usa package-lock.json
+# e installa esattamente le versioni gia verificate in locale.
+COPY package.json package-lock.json ./
+RUN npm ci
 
 COPY . ./
 

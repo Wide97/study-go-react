@@ -68,15 +68,16 @@ docker compose     -> avvia tutto insieme
 - [x] Backend Go inizializzato
 - [x] Backend: `GET /health`
 - [x] Backend: Dockerfile
-- [ ] Backend: build immagine
+- [x] Backend: build immagine
 - [x] Frontend React inizializzato
 - [x] Frontend: chiamata API backend
+- [x] Frontend: build statica locale (`npm run build`)
 - [x] Frontend: Dockerfile
 - [x] Frontend: nginx config
-- [ ] Frontend: build immagine
+- [x] Frontend: build immagine
 - [x] Docker Compose
-- [ ] Avvio full-stack con `docker compose up`
-- [ ] Aggiornare `STUDY.md`
+- [x] Avvio full-stack con `docker compose up`
+- [x] Aggiornare `STUDY.md`
 
 ## Metodo
 
@@ -100,3 +101,10 @@ Per fermare i container usa `Ctrl+C`, oppure in un secondo terminale:
 ```bash
 docker compose down
 ```
+
+## Verifica effettuata
+
+Il backend supera `go test ./...` e il frontend supera `npm run build`.
+Le immagini Docker vengono create correttamente con `docker compose up --build`.
+Il frontend e raggiungibile su `http://localhost:5173` e la chiamata
+`/api/health` restituisce `OK` dal backend attraverso nginx.
