@@ -59,6 +59,19 @@ Una struct con questi campi (nome del campo Go, tipo, e perché serve):
 Ricordati i tag JSON per ogni campo (stesso pattern già usato: nome del campo Go in maiuscolo,
 tag JSON in minuscolo/snake_case o camelCase a tua scelta, basta essere coerente).
 
+## Un secondo tipo: `ServiceRequest`
+
+Stesso pattern di `08-database-notes` (`Note` vs `NoteRequest`): oltre a `Service` (il record
+completo, con `ID` e `CreatedAt` generati dal database), serve un tipo più piccolo che rappresenta
+**solo i dati che un client può mandare** quando crea o modifica un servizio — senza `ID` né
+`CreatedAt`, che non deve poter decidere lui.
+
+Aggiungi in `models.go` un secondo tipo, `ServiceRequest`, con solo tre campi: `Name`, `URL`,
+`IntervalSeconds` (stessi tipi e tag JSON già usati in `Service` per questi tre campi).
+
+Lo userai nei prossimi file (repository, handler) come tipo di ingresso per `POST`/`PUT`, mentre
+`Service` resterà il tipo usato per leggere/restituire i dati già salvati.
+
 ## Cosa NON deve contenere (ancora)
 
 Nessun campo relativo allo stato attuale del servizio (su/giù, ultima risposta, ecc.) — quello
