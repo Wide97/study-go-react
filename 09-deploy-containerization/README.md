@@ -74,7 +74,7 @@ docker compose     -> avvia tutto insieme
 - [x] Frontend: Dockerfile
 - [x] Frontend: nginx config
 - [ ] Frontend: build immagine
-- [ ] Docker Compose
+- [x] Docker Compose
 - [ ] Avvio full-stack con `docker compose up`
 - [ ] Aggiornare `STUDY.md`
 
@@ -83,3 +83,20 @@ docker compose     -> avvia tutto insieme
 Procediamo a piccoli passi.
 
 Prima facciamo funzionare backend e frontend in locale, poi li mettiamo nei container. Docker arriva dopo che sappiamo cosa deve eseguire.
+
+## Avvio con Compose
+
+Dalla cartella di questo progetto:
+
+```bash
+docker compose up --build
+```
+
+Poi apri `http://localhost:5173`. Il frontend chiama `/api/health`; nginx
+inoltra quella richiesta al container backend, che riceve `/health`.
+
+Per fermare i container usa `Ctrl+C`, oppure in un secondo terminale:
+
+```bash
+docker compose down
+```

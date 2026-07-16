@@ -1,0 +1,25 @@
+# Docker Compose crea una rete privata per questo file.
+# Per questo nginx puo usare http://backend:8080: "backend" e il nome del
+# servizio, non localhost. Dentro un container localhost indica se stesso.
+services:
+  backend:
+    build:
+      context: ./backend
+    ports:
+      # Esposta anche al computer per poter provare direttamente /health.
+      - "8080:8080"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Vite legge VITE_API_BASE_URL durante npm run build.
+        # nginx ricevera poi /api/health e lo inoltrera al backend.
+        VITE_API_BASE_URL: /api
+    ports:
+      # nginx ascolta sulla 80 nel container; il browser usa la 5173 locale.
+      - "5173:80"
+    depends_on:
+      # Avvia prima il container backend. Non sostituisce un health check,
+      # ma e sufficiente per questo primo esempio.
+      - backend
