@@ -67,7 +67,7 @@ docker compose     -> avvia tutto insieme
 - [x] Scheletro progetto creato
 - [x] Backend Go inizializzato
 - [x] Backend: `GET /health`
-- [ ] Backend: Dockerfile
+- [x] Backend: Dockerfile
 - [ ] Backend: build immagine
 - [ ] Frontend React inizializzato
 - [ ] Frontend: chiamata API backend
