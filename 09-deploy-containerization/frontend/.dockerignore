@@ -1,0 +1,9 @@
+# node_modules viene installata dentro lo stage di build. Copiarla dal computer
+# renderebbe il contesto Docker piu grande e potrebbe introdurre binari diversi.
+node_modules
+
+# dist e il risultato della build: viene ricreata con npm run build.
+dist
+
+.DS_Store
+npm-debug.log

@@ -71,8 +71,8 @@ docker compose     -> avvia tutto insieme
 - [ ] Backend: build immagine
 - [x] Frontend React inizializzato
 - [x] Frontend: chiamata API backend
-- [ ] Frontend: Dockerfile
-- [ ] Frontend: nginx config
+- [x] Frontend: Dockerfile
+- [x] Frontend: nginx config
 - [ ] Frontend: build immagine
 - [ ] Docker Compose
 - [ ] Avvio full-stack con `docker compose up`
