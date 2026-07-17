@@ -28,3 +28,32 @@ func servicesHandler(db *sql.DB) http.HandlerFunc {
 	}
 
 }
+
+func createServiceHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req ServiceRequest
+
+		err := json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			http.Error(w, "Invalid request payload", http.StatusBadRequest)
+			return
+		}
+
+		if req.Name == "" || req.URL == "" || req.IntervalSeconds <= 0 {
+			http.Error(w, "Name and URL are required. Interval seconds must be grater than 0.", http.StatusBadRequest)
+			return
+		}
+
+		service, err := createService(db, req)
+		if err != nil {
+			http.Error(w, "Failed to create Services", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		//scrivo lo stato di creazione corretto (201)
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(service)
+
+	}
+}
