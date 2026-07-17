@@ -112,6 +112,8 @@ func updateService(db *sql.DB, id int, req ServiceRequest) (Service, error) {
 		return Service{}, err
 	}
 
+	// per verificare quante righe nel db sono state affected dalle modifiche
+	// se c' è un errore o le rows sono 0, ci fermiamo perchè non abbiamo modificato nulla
 	affected, err := result.RowsAffected()
 	if err != nil {
 		return Service{}, err
@@ -121,5 +123,28 @@ func updateService(db *sql.DB, id int, req ServiceRequest) (Service, error) {
 	}
 
 	return getServiceById(db, id)
+
+}
+
+func deleteService(db *sql.DB, id int) error {
+	result, err := db.Exec(`
+	    DELETE from services
+		WHERE id=?
+		`, id)
+
+	if err != nil {
+		return err
+	}
+
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if affected == 0 {
+		return sql.ErrNoRows
+	}
+
+	return nil
 
 }
