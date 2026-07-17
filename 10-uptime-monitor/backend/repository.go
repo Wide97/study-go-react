@@ -77,3 +77,49 @@ func createService(db *sql.DB, req ServiceRequest) (Service, error) {
 
 	return service, nil
 }
+
+func getServiceById(db *sql.DB, id int) (Service, error) {
+	var service Service
+
+	err := db.QueryRow(`
+		SELECT id, name, url, interval_seconds, created_at
+		FROM services
+		WHERE id = ?
+	`, id).Scan(
+		&service.ID,
+		&service.Name,
+		&service.URL,
+		&service.IntervalSeconds,
+		&service.CreatedAt,
+	)
+
+	if err != nil {
+		return Service{}, err
+	}
+
+	return service, nil
+
+}
+
+func updateService(db *sql.DB, id int, req ServiceRequest) (Service, error) {
+	result, err := db.Exec(`
+		UPDATE services 
+		SET name=?, url=?, interval_seconds=?
+		WHERE id = ?
+	`, req.Name, req.URL, req.IntervalSeconds, id)
+
+	if err != nil {
+		return Service{}, err
+	}
+
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return Service{}, err
+	}
+	if affected == 0 {
+		return Service{}, sql.ErrNoRows
+	}
+
+	return getServiceById(db, id)
+
+}
