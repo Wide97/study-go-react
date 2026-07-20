@@ -97,3 +97,26 @@ func updateServiceHandler(db *sql.DB) http.HandlerFunc {
 		json.NewEncoder(w).Encode(service)
 	}
 }
+
+func deleteServiceHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.Atoi(r.PathValue("id"))
+		if err != nil || id <= 0 {
+			http.Error(w, "Invalid service id", http.StatusBadRequest)
+			return
+		}
+
+		err = deleteService(db, id)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				http.Error(w, "Service not found", http.StatusNotFound)
+				return
+			}
+
+			http.Error(w, "Failed to delete service", http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusNoContent)
+	}
+}
