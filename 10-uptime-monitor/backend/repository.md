@@ -50,3 +50,33 @@ Dopo un `UPDATE` riuscito, `updateService` non deve "inventarsi" la `Service` da
 assemblandola a mano dai campi di `req` — richiama `getServiceByID(db, id)` alla fine e restituisce
 quello, così il valore tornato è **esattamente** quello che è finito nel database (stesso motivo/
 pattern di `updateNote` in `08-database-notes`).
+
+## Estensione per M2: `recordCheck`
+
+Una sola funzione nuova in `repository.go`:
+
+| Funzione | Parametri (oltre a `db`) | Cosa restituisce | Cosa fa |
+|---|---|---|---|
+| `recordCheck` | `serviceID int`, `status string`, `responseTimeMs int` | `(Check, error)` | Inserisce un nuovo check nella tabella `checks` |
+
+Stessa forma di `createService`: genera `checked_at` con `time.Now().Format(time.RFC3339)`,
+esegue un `INSERT INTO checks (...)`, recupera l'id con `result.LastInsertId()`, e costruisce/
+restituisce il `Check` completo — non serve rileggerlo dal database con una `SELECT` separata (a
+differenza di `updateService`), perché qui hai già in mano tutti i valori che hai appena inserito:
+non c'è nulla che il database possa aver calcolato lui e che tu non conosca già (a differenza di un
+`UPDATE`, dove vuoi essere sicuro che il record letto rifletta esattamente cosa è stato scritto).
+
+Non serve nessuna funzione per **leggere** i check in questa milestone: chi la userà è lo
+scheduler (prossimo file), che chiama solo `recordCheck` dopo ogni controllo HTTP. Le funzioni di
+lettura (es. "tutti i check di un servizio", "l'ultimo check di un servizio") arriveranno quando
+servono davvero — in M3 (statistiche) e M4 (notifiche), non prima. Evita di scriverle ora "perché
+prima o poi serviranno": codice non usato è solo rumore da mantenere.
+
+### Perché i parametri sono tre valori separati e non un `Check` già pronto
+
+Potresti chiederti: perché non `recordCheck(db, check Check) (Check, error)`, passando un `Check`
+già assemblato? Perché chi chiama questa funzione (lo scheduler) non conosce ancora `ID` né
+`CheckedAt` — li decide il repository (come in `createService`, che riceve `ServiceRequest`, non
+`Service`). Passare i tre valori "grezzi" misurati dallo scheduler (`serviceID`, `status`,
+`responseTimeMs`) rende esplicito cosa lo scheduler sa davvero e cosa invece è responsabilità del
+repository generare.

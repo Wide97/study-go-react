@@ -148,3 +148,33 @@ func deleteService(db *sql.DB, id int) error {
 	return nil
 
 }
+
+func recordCheck(db *sql.DB, serviceID int, status string, responseTimeMs int) (Check, error) {
+
+	now := time.Now().Format(time.RFC3339)
+
+	result, err := db.Exec(`
+		INSERT INTO checks (service_id, status, response_time_ms, checked_at)
+		VALUES (?, ?, ?, ?)
+		`, serviceID, status, responseTimeMs, now)
+	//quanto sopra sono i parametri che passo agli ?
+	if err != nil {
+		return Check{}, err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return Check{}, err
+	}
+
+	check := Check{
+		ID:             int(id),
+		ServiceID:      serviceID,
+		Status:         status,
+		ResponseTimeMs: responseTimeMs,
+		CheckedAt:      now,
+	}
+
+	return check, nil
+
+}
