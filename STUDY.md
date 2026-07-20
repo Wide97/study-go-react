@@ -49,3 +49,11 @@ Focus su full-stack Go (backend) + React (frontend) per far lavorare insieme i d
 - [x] **Deploy/containerizzazione** — completato in `09-deploy-containerization/`: Dockerfile per backend Go + frontend React, Docker Compose e verifica runtime. Concetti: multi-stage build, reverse proxy nginx per servire frontend e inoltrare API, rete tra servizi e build riproducibile con `npm ci`.
 
 Nuove idee si possono aggiungere liberamente man mano che vengono in mente, semplicemente spuntando/aggiungendo righe qui sopra.
+
+## Dopo il backlog: progetti "seri"
+
+Backlog sopra completato interamente. Dal progetto `10-uptime-monitor` in poi si passa ad
+applicativi "seri" (uso reale, non esercizio di consolidamento): per questi vale una regola più
+stretta di quella generale di questo file — nessun codice scritto da Claude, solo file `.md` di
+teoria affiancati al codice scritto da Marco. Dettagli, motivazione e stato del progetto attivo in
+`.ai-docs/conventions.md` e `.ai-docs/current-state.md` (non duplicati qui).

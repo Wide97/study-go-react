@@ -38,7 +38,7 @@ API REST (stessa struttura vista in 08-database-notes) → frontend React (dashb
 
 ## Milestone
 
-- [ ] **M1 — Dati e CRUD servizi**: modello `Service`, SQLite, CRUD via API REST
+- [x] **M1 — Dati e CRUD servizi**: modello `Service`, SQLite, CRUD via API REST
       (`GET/POST/PUT/DELETE /services`). Nessun controllo reale ancora, solo configurazione.
 - [ ] **M2 — Lo scheduler**: goroutine che, ogni tot secondi, esegue un HTTP check su ogni
       servizio configurato e salva il risultato (tabella `checks`).
@@ -53,4 +53,6 @@ API REST (stessa struttura vista in 08-database-notes) → frontend React (dashb
 ## Stato
 
 - [x] Backend Go inizializzato (`backend/go.mod`)
-- [ ] M1 — Dati e CRUD servizi (**prossimo passo**)
+- [x] M1 — Dati e CRUD servizi (`db.go`, `models.go`, `repository.go`, `handlers.go`, `main.go`
+      completi; `go build`/`go vet` puliti)
+- [ ] M2 — Lo scheduler (**prossimo passo**)
