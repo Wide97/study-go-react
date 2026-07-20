@@ -13,3 +13,11 @@ type ServiceRequest struct {
 	URL             string `json:"url"`
 	IntervalSeconds int    `json:"interval_seconds"`
 }
+
+type Check struct {
+	ID             int    `json:"id"`
+	ServiceID      int    `json:"service_id"`
+	Status         string `json:"status"`
+	ResponseTimeMs int    `json:"response_time_ms"`
+	CheckedAt      string `json:"checked_at"`
+}

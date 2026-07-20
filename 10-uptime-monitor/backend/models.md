@@ -78,3 +78,36 @@ Nessun campo relativo allo stato attuale del servizio (su/giù, ultima risposta,
 è lo scopo della struct `Check`, che vedremo in M2. Tenere `Service` (configurazione) separato da
 `Check` (risultati nel tempo) è una scelta di design: la configurazione cambia raramente, i
 risultati si accumulano continuamente — sono due concetti diversi anche se collegati.
+
+## Estensione per M2: struct `Check`
+
+Ora che iniziamo M2 (lo scheduler), aggiungi in `models.go` un secondo tipo, `Check`: rappresenta
+**un singolo controllo** eseguito su un servizio, con l'esito. A differenza di `Service`
+(configurazione, cambia raramente), ogni check è un nuovo record che si accumula nel tempo — è lo
+"storico" di cui parla il README del progetto.
+
+| Campo | Tipo | Perché |
+|---|---|---|
+| `ID` | intero | Identificativo univoco del singolo check, generato dal database |
+| `ServiceID` | intero | A quale `Service` si riferisce questo check — il "collegamento" tra le due tabelle (vedi `db.md`, sezione checks) |
+| `Status` | stringa | Esito del controllo: `"up"` o `"down"` (scelta di due sole stringhe possibili invece di un bool, per poter aggiungere in futuro stati intermedi senza rompere tutto — es. `"timeout"`) |
+| `ResponseTimeMs` | intero | Tempo di risposta in millisecondi. Ha senso solo se `Status == "up"`; se il servizio è giù (timeout/errore di connessione) non c'è un tempo di risposta da misurare — vedi nota sotto su come rappresentarlo |
+| `CheckedAt` | stringa | Quando è stato eseguito questo check (RFC3339, stesso pattern di `CreatedAt` in `Service`) |
+
+Niente `ServiceRequest`-equivalente per `Check`: non lo crea mai un client via API, lo crea solo lo
+scheduler internamente — non serve un tipo "di ingresso" separato.
+
+### Nota: `ResponseTimeMs` quando il servizio è giù
+
+Se metti `ResponseTimeMs int` con tag `json:"response_time_ms"`, quando il servizio è giù finirai
+per salvare/restituire `0` — che è ambiguo (0 significa "nessun dato" o "rispondeva istantaneamente"?).
+Due strade possibili, a tua scelta quando ci arrivi in `repository.go`/`scheduler.go`:
+
+1. **Più semplice ora**: accetta l'ambiguità, `0` = "non misurato", e documentalo con un commento.
+   Va benissimo per M2 — è una scelta pragmatica, non un errore.
+2. **Più corretta ma con più codice**: `ResponseTimeMs *int` (puntatore), `nil` quando il servizio è
+   giù, un intero altrimenti — stesso concetto di "campo opzionale" che potresti aver già incontrato
+   in altri contesti Go. Se vuoi approfondirlo quando ci arrivi, te lo spiego meglio in quel momento.
+
+Per ora scegli l'opzione 1 (intero semplice) per non appesantire la prima versione dello scheduler
+— si può sempre rifinire dopo.

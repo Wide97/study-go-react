@@ -32,6 +32,19 @@ func openDatabase() (*sql.DB, error) {
 		return nil, err
 	}
 
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS checks (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			service_id INTEGER NOT NULL,
+			status TEXT NOT NULL,
+			response_time_ms INTEGER,
+			checked_at TEXT NOT NULL
+		);
+	`)
+	if err != nil {
+		return nil, err
+	}
+
 	return db, nil
 
 }
