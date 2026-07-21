@@ -58,3 +58,21 @@ React che chiamava l'API da un'origine diversa (porta diversa in dev). Qui il fr
 con **M5**: fino ad allora puoi testare l'API con `curl`/Postman senza bisogno di CORS. Quando
 arriverai al frontend, potrai riprendere `cors.go` da `08-database-notes` allo stesso modo in cui
 hai riportato `openDatabase`/gli handler — te lo ricorderò a quel punto se serve.
+
+## Estensione per M2: avviare lo scheduler
+
+Dopo aver aperto il database (`openDatabase`) e **prima** di registrare le route del mux, aggiungi
+in `main`:
+
+1. Una chiamata a `listServices(db)` per leggere i servizi già configurati (la stessa funzione già
+   usata da `servicesHandler` — qui la chiami direttamente, non dentro un handler HTTP).
+2. Una chiamata a `startScheduler(db, services)` (vedi `scheduler.md`).
+
+`startScheduler` non blocca: avvia le sue goroutine e ritorna subito, quindi `main` prosegue
+normalmente verso `mux := http.NewServeMux()` e poi `http.ListenAndServe` come già scritto — i due
+"mondi" (server HTTP che risponde alle richieste, scheduler che controlla i servizi in background)
+girano insieme da quel momento in poi, senza che uno blocchi l'altro.
+
+Nota: se `listServices` ritorna un errore qui, decidi tu come gestirlo — dato che senza servizi
+configurati lo scheduler semplicemente non avvia nessuna goroutine (non è un errore fatale come la
+mancata apertura del database), potresti anche solo loggarlo e continuare, invece di `log.Fatal`.
